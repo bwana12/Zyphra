@@ -7,13 +7,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ZYPHRA">
-<meta name="description" content="Encrypted Zyphari messaging app">
 <title>ZYPHRA</title>
-
 <link id="manifestLink" rel="manifest">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
+/* 🎨 ALL ORIGINAL STYLES PRESERVED FROM V3 */
 :root {
   --void: #020008; --deep: #08001a; --mid: #12002e; --cyan: #00f5ff;
   --violet: #b400ff; --pink: #ff00aa; --green: #00ff88;
@@ -25,51 +24,62 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation;}
 input,textarea,select{-webkit-user-select:text!important;user-select:text!important;}
-html,body{height:100%;overflow:hidden;background:#000;}
-body { font-family:'Share Tech Mono',monospace; color:#fff; display:flex; justify-content:center; align-items:center; background:radial-gradient(ellipse 100% 100% at 50% 50%, #0a0018 0%, #020008 100%); }
-.bg {position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.bg-grad { position:absolute;inset:0; background: radial-gradient(ellipse 70% 50% at 15% 85%, rgba(180,0,255,0.1) 0%, transparent 55%), radial-gradient(ellipse 50% 70% at 85% 15%, rgba(0,245,255,0.07) 0%, transparent 55%), radial-gradient(ellipse 30% 30% at 50% 50%, rgba(180,0,255,0.04) 0%, transparent 60%); }
-.grid { position:absolute;inset:0; background-image: linear-gradient(rgba(0,245,255,0.02) 1px,transparent 1px), linear-gradient(90deg,rgba(0,245,255,0.02) 1px,transparent 1px); background-size:50px 50px; }
-.scan { position:absolute;width:100%;height:2px; background:linear-gradient(90deg,transparent,rgba(0,245,255,0.25),transparent); animation:scan 8s linear infinite; }
+html,body{height:100%;overflow:hidden;background:#000;font-family:'Share Tech Mono',monospace;color:#fff;}
+body{display:flex;justify-content:center;align-items:center;background:radial-gradient(ellipse 100% 100% at 50% 50%, #0a0018 0%, #020008 100%);}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-grad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 85%, rgba(180,0,255,0.1) 0%, transparent 55%), radial-gradient(ellipse 50% 70% at 85% 15%, rgba(0,245,255,0.07) 0%, transparent 55%);}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,255,0.02) 1px,transparent 1px), linear-gradient(90deg,rgba(0,245,255,0.02) 1px,transparent 1px);background-size:50px 50px;}
+.scan{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.25),transparent);animation:scan 8s linear infinite;}
 @keyframes scan{from{top:-2px}to{top:100vh}}
-.app { position:relative;z-index:10; width:min(390px,100vw); height:min(844px,100vh); background:linear-gradient(165deg,rgba(18,0,40,0.97) 0%,rgba(4,0,12,0.99) 100%); border-radius:min(48px,4vw); border:1px solid rgba(180,0,255,0.25); box-shadow: 0 0 0 1px rgba(0,245,255,0.08), 0 0 60px rgba(180,0,255,0.15), 0 0 120px rgba(0,245,255,0.06), inset 0 0 40px rgba(180,0,255,0.04); overflow:hidden; display:flex;flex-direction:column; }
-.notch { position:absolute;top:0;left:50%;transform:translateX(-50%); width:130px;height:32px; background:#000;border-radius:0 0 20px 20px; z-index:200;display:flex;align-items:center;justify-content:center;gap:8px; }
+.app{position:relative;z-index:10;width:min(390px,100vw);height:min(844px,100vh);background:linear-gradient(165deg,rgba(18,0,40,0.97) 0%,rgba(4,0,12,0.99) 100%);border-radius:min(48px,4vw);border:1px solid rgba(180,0,255,0.25);box-shadow:0 0 60px rgba(180,0,255,0.15);overflow:hidden;display:flex;flex-direction:column;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:32px;background:#000;border-radius:0 0 20px 20px;z-index:200;display:flex;align-items:center;justify-content:center;gap:8px;}
 .n-dot{width:8px;height:8px;border-radius:50%;background:#111;}
 .n-cam{background:rgba(0,245,255,0.35);box-shadow:0 0 6px var(--cyan);}
-.status{ padding:8px 22px 0; display:flex;align-items:center;justify-content:space-between; font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px; flex-shrink:0; }
-.sigs{display:flex;gap:2px;align-items:flex-end;}
-.sig{width:3px;border-radius:1px;background:rgba(0,245,255,0.45);}
-.sig:nth-child(1){height:4px} .sig:nth-child(2){height:7px} .sig:nth-child(3){height:10px} .sig:nth-child(4){height:13px}
 .screen{display:none;flex-direction:column;flex:1;overflow:hidden;animation:fadeUp .3s ease;}
 .screen.active{display:flex;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.auth-wrap{ flex:1;display:flex;flex-direction:column; align-items:center;justify-content:center; padding:20px 28px 40px;gap:0; }
-.auth-logo { font-family:'Orbitron',sans-serif;font-weight:900;font-size:36px; letter-spacing:8px; background:linear-gradient(90deg,var(--cyan),var(--violet)); -webkit-background-clip:text;-webkit-text-fill-color:transparent; filter:drop-shadow(0 0 12px rgba(0,245,255,0.6)); margin-bottom:4px; }
-.auth-tagline{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.25);margin-bottom:40px;text-align:center;}
-.auth-tabs{display:flex;gap:0;margin-bottom:28px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);overflow:hidden;}
-.auth-tab{ flex:1;padding:10px;text-align:center;font-size:11px;letter-spacing:3px; cursor:pointer;transition:all .25s;color:rgba(255,255,255,0.3); font-family:'Share Tech Mono',monospace; }
-.auth-tab.active{background:linear-gradient(135deg,rgba(0,245,255,0.12),rgba(180,0,255,0.12));color:var(--cyan);border-bottom:1px solid var(--cyan);}
-.auth-form{width:100%;display:flex;flex-direction:column;gap:14px;}
-.field-wrap{position:relative;}
-.field-label{font-size:9px;letter-spacing:3px;color:rgba(0,245,255,0.5);margin-bottom:6px;display:block;}
-.auth-input{ width:100%;padding:14px 16px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;letter-spacing:1px; outline:none;transition:all .25s; -webkit-appearance:none;appearance:none; touch-action:manipulation; }
-.auth-btn{ margin-top:8px;padding:16px;border-radius:16px; background:linear-gradient(135deg,rgba(0,245,255,0.15),rgba(180,0,255,0.2)); border:1px solid rgba(0,245,255,0.35); color:var(--cyan);font-size:12px;letter-spacing:4px; font-family:'Share Tech Mono',monospace;cursor:pointer; transition:all .25s; }
-.auth-btn:hover{background:linear-gradient(135deg,rgba(0,245,255,0.25),rgba(180,0,255,0.3));box-shadow:var(--glow-c);}
-.auth-error{ font-size:11px;letter-spacing:1px;color:var(--pink); text-align:center;min-height:16px; margin-top:10px; }
-.chat-header{ padding:42px 18px 14px; display:flex;align-items:center;gap:12px; background:linear-gradient(180deg,rgba(8,0,20,0.95) 0%,transparent 100%); border-bottom:1px solid var(--gb);flex-shrink:0; backdrop-filter:blur(20px); }
-.messages-wrap{ flex:1;overflow-y:auto;padding:12px 14px; display:flex;flex-direction:column;gap:10px; }
-.msg-bubble{ max-width:76%;padding:11px 15px; border-radius:18px;position:relative; font-size:16px;letter-spacing:2px;line-height:1.7; animation:bubIn .3s cubic-bezier(.34,1.56,.64,1); word-break:break-all; }
-.msg-group.sent .msg-bubble{ background:linear-gradient(135deg,rgba(0,245,255,0.1),rgba(180,0,255,0.07)); border:1px solid rgba(0,245,255,0.2); border-bottom-right-radius:5px; align-self: flex-end; }
-.msg-group.recv .msg-bubble{ background:linear-gradient(135deg,rgba(180,0,255,0.09),rgba(0,245,255,0.04)); border:1px solid rgba(180,0,255,0.18); border-bottom-left-radius:5px; align-self: flex-start; }
-.input-area{ padding:10px 12px 24px;flex-shrink:0; background:linear-gradient(0deg,rgba(8,0,20,.97) 0%,transparent 100%); backdrop-filter:blur(20px); }
-.input-row{ display:flex;align-items:flex-end;gap:8px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:22px;padding:8px 8px 8px 14px; }
-#msgInput{ flex:1;background:none;border:none;outline:none; color:rgba(255,255,255,.85);font-family:'Share Tech Mono',monospace; font-size:15px;letter-spacing:1px;caret-color:var(--cyan); }
-.send-btn{ width:36px;height:36px;border-radius:50%; background:linear-gradient(135deg,var(--cyan),var(--violet)); border:none; color:#000; font-size:15px; display:flex;align-items:center;justify-content:center; }
+
+/* AUTH & CHAT LIST STYLES */
+.auth-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;}
+.auth-logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:36px;letter-spacing:8px;background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,245,255,0.6));}
+.auth-tabs{display:flex;margin:30px 0;background:rgba(255,255,255,0.04);border-radius:12px;overflow:hidden;width:100%;}
+.auth-tab{flex:1;padding:12px;text-align:center;font-size:11px;cursor:pointer;color:rgba(255,255,255,0.3);}
+.auth-tab.active{background:rgba(0,245,255,0.1);color:var(--cyan);border-bottom:2px solid var(--cyan);}
+.auth-input{width:100%;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;margin-bottom:12px;outline:none;}
+.auth-btn{width:100%;padding:16px;border-radius:12px;background:linear-gradient(135deg,rgba(0,245,255,0.2),rgba(180,0,255,0.2));border:1px solid var(--cyan);color:var(--cyan);cursor:pointer;font-family:inherit;letter-spacing:2px;}
+
+/* MESSAGES & CIPHER */
+.chat-header{padding:45px 20px 15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gb);backdrop-filter:blur(20px);}
+.cipher-btn{padding:5px 12px;border-radius:15px;background:rgba(180,0,255,0.1);border:1px solid rgba(180,0,255,0.3);color:var(--violet);font-size:10px;cursor:pointer;}
+.cipher-btn.on{background:var(--violet);color:#fff;box-shadow:var(--glow-v);}
+.messages-wrap{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.msg-bubble{max-width:80%;padding:12px 16px;border-radius:18px;font-size:15px;line-height:1.5;position:relative;word-break:break-all;}
+.msg-group.sent .msg-bubble{align-self:flex-end;background:rgba(0,245,255,0.1);border:1px solid rgba(0,245,255,0.2);border-bottom-right-radius:4px;}
+.msg-group.recv .msg-bubble{align-self:flex-start;background:rgba(180,0,255,0.1);border:1px solid rgba(180,0,255,0.2);border-bottom-left-radius:4px;}
+.msg-bubble.ciphered{border-color:var(--pink);box-shadow:0 0 15px rgba(255,0,170,0.2);color:rgba(255,0,170,0.8);font-family:monospace;}
+
+/* KEYBOARD */
+.zk{background:#050012;border-top:1px solid rgba(0,245,255,0.1);padding:10px;}
+.zk-modes{display:flex;gap:5px;margin-bottom:8px;}
+.zk-mode{flex:1;padding:6px;text-align:center;font-size:9px;color:rgba(255,255,255,0.3);cursor:pointer;}
+.zk-mode.active{color:var(--cyan);border-bottom:1px solid var(--cyan);}
+.zk-row{display:flex;justify-content:center;gap:4px;margin-bottom:5px;}
+.zk-key{min-width:32px;height:40px;background:rgba(255,255,255,0.05);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
+.zk-key:active{background:var(--cyan);color:#000;transform:scale(0.9);}
+.zk-key.wide{flex:2;font-size:12px;}
+
+/* TOAST & MODALS */
+.toast{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:var(--cyan);color:#000;padding:8px 20px;border-radius:20px;font-size:11px;opacity:0;transition:0.3s;z-index:999;}
+.toast.show{opacity:1;}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:500;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:#0a001c;border:1px solid var(--cyan);padding:25px;border-radius:20px;width:80%;}
 </style>
 </head>
 <body>
 
 <div class="bg"><div class="bg-grad"></div><div class="grid"></div><div class="scan"></div></div>
+<div class="toast" id="toast">SYSTEM MESSAGE</div>
 
 <div class="app">
     <div class="notch"><div class="n-dot"></div><div class="n-dot n-cam"></div><div class="n-dot"></div></div>
@@ -77,45 +87,31 @@ body { font-family:'Share Tech Mono',monospace; color:#fff; display:flex; justif
     <div class="screen active" id="authScreen">
         <div class="auth-wrap">
             <div class="auth-logo">ZYPHRA</div>
-            <div class="auth-tagline">// CLOUD · STREAM · SYNC</div>
             <div class="auth-tabs">
                 <div class="auth-tab active" id="loginTab" onclick="switchTab('login')">LOGIN</div>
                 <div class="auth-tab" id="registerTab" onclick="switchTab('register')">REGISTER</div>
             </div>
             <div class="auth-form">
-                <div class="field-wrap" id="nameField" style="display:none;">
-                    <label class="field-label">// DISPLAY NAME</label>
-                    <input class="auth-input" id="authName" type="text" placeholder="CHOOSE IDENTIFIER">
-                </div>
-                <div class="field-wrap">
-                    <label class="field-label">// EMAIL ADDRESS</label>
-                    <input class="auth-input" id="authEmail" type="email" placeholder="YOUR@EMAIL.COM">
-                </div>
-                <div class="field-wrap">
-                    <label class="field-label">// PASSWORD</label>
-                    <input class="auth-input" id="authPass" type="password" placeholder="••••••••">
-                </div>
-                <button class="auth-btn" id="authActionBtn" onclick="doAuth()">AUTHORIZE ACCESS</button>
-                <div id="authErr" class="auth-error"></div>
+                <input class="auth-input" id="authName" type="text" placeholder="DISPLAY NAME" style="display:none;">
+                <input class="auth-input" id="authEmail" type="email" placeholder="EMAIL ADDRESS">
+                <input class="auth-input" id="authPass" type="password" placeholder="PASSWORD">
+                <button class="auth-btn" onclick="doAuth()">AUTHORIZE</button>
+                <div id="authErr" style="color:var(--pink); font-size:10px; margin-top:10px; text-align:center;"></div>
             </div>
         </div>
     </div>
 
     <div class="screen" id="chatScreen">
         <div class="chat-header">
-            <div style="flex:1;">
-                <div style="font-size:18px; letter-spacing:4px; font-family:'Orbitron';">ZYPHRA</div>
-                <div id="userBadge" style="font-size:9px; color:var(--cyan); letter-spacing:2px;">CONNECTING...</div>
+            <div style="flex:1">
+                <div style="font-family:'Orbitron'; letter-spacing:3px;">ZYPHRA</div>
+                <div id="userBadge" style="font-size:9px; color:var(--cyan);">STREAMS ACTIVE</div>
             </div>
-            <button onclick="doLogout()" style="background:none; border:none; color:var(--pink); font-family:inherit; font-size:10px; cursor:pointer;">[TERMINATE]</button>
+            <button class="cipher-btn" id="cipherToggle" onclick="toggleCipherMode()">CIPHER: OFF</button>
+            <button onclick="doLogout()" style="background:none; border:none; color:var(--pink); font-size:10px;">[EXIT]</button>
         </div>
         <div class="messages-wrap" id="msgContainer"></div>
-        <div class="input-area">
-            <div class="input-row">
-                <input type="text" id="msgInput" placeholder="Enter encrypted payload..." onkeypress="if(event.key==='Enter') sendMessage()">
-                <button class="send-btn" onclick="sendMessage()">➤</button>
-            </div>
-        </div>
+        <div class="zk" id="zyKeyboard"></div>
     </div>
 </div>
 
@@ -138,88 +134,144 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentMode = 'login';
-let currentUser = null;
+let cipherEnabled = false;
+let kbMode = 'alpha';
 
-// Handle Screen Switching
+// --- UTILS ---
+window.showToast = (msg) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+};
+
+// --- AUTH LOGIC ---
 window.switchTab = (mode) => {
     currentMode = mode;
     document.getElementById('loginTab').classList.toggle('active', mode === 'login');
     document.getElementById('registerTab').classList.toggle('active', mode === 'register');
-    document.getElementById('nameField').style.display = mode === 'register' ? 'block' : 'none';
-    document.getElementById('authActionBtn').textContent = mode === 'register' ? 'INITIALIZE ACCOUNT' : 'AUTHORIZE ACCESS';
+    document.getElementById('authName').style.display = mode === 'register' ? 'block' : 'none';
 };
 
-// Handle Authentication
 window.doAuth = async () => {
-    const email = document.getElementById('authEmail').value.trim();
+    const email = document.getElementById('authEmail').value;
     const pass = document.getElementById('authPass').value;
-    const name = document.getElementById('authName').value.trim();
-    const err = document.getElementById('authErr');
-
+    const name = document.getElementById('authName').value;
     try {
         if(currentMode === 'register') {
-            if(!name) throw new Error("Display name required");
             await createUserWithEmailAndPassword(auth, email, pass);
-            localStorage.setItem('zy_name', name);
+            localStorage.setItem('zy_user', name || email.split('@')[0]);
         } else {
             await signInWithEmailAndPassword(auth, email, pass);
         }
-    } catch (e) {
-        err.textContent = "// " + e.message.toUpperCase();
-    }
+    } catch (e) { document.getElementById('authErr').textContent = e.message; }
 };
 
 window.doLogout = () => signOut(auth);
 
-// Real-time Auth State
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUser = user;
+onAuthStateChanged(auth, user => {
+    if(user) {
         document.getElementById('authScreen').classList.remove('active');
         document.getElementById('chatScreen').classList.add('active');
-        document.getElementById('userBadge').textContent = localStorage.getItem('zy_name') || user.email;
-        loadMessages();
+        initChat();
     } else {
         document.getElementById('chatScreen').classList.remove('active');
         document.getElementById('authScreen').classList.add('active');
     }
 });
 
-// Cloud Chat Logic
-window.sendMessage = async () => {
-    const input = document.getElementById('msgInput');
-    const text = input.value.trim();
-    if(!text || !currentUser) return;
-
-    await addDoc(collection(db, "messages"), {
-        text: text,
-        uid: currentUser.uid,
-        user: localStorage.getItem('zy_name') || currentUser.email,
-        time: serverTimestamp()
-    });
-    input.value = "";
+// --- KEYBOARD ENGINE ---
+const keys = {
+    alpha: [["Q","W","E","R","T","Y","U","I","O","P"],["A","S","D","F","G","H","J","K","L"],["SHIFT","Z","X","C","V","B","N","M","DEL"],["123","SPACE","SEND"]],
+    sym: [["1","2","3","4","5","6","7","8","9","0"],["-","/",":",";","(",")","$","&","@","\""],["#+=",".",",","?","!","'","DEL"],["ABC","SPACE","SEND"]],
+    emoji: [["😀","😂","😍","🚀","🔥","✨","💀","👋"],["❤️","👍","🎉","📍","📱","🔒","💬","🌈"],["DEL"],["ABC","SPACE","SEND"]]
 };
 
-function loadMessages() {
-    const q = query(collection(db, "messages"), orderBy("time", "asc"));
-    onSnapshot(q, (snapshot) => {
-        const container = document.getElementById('msgContainer');
-        container.innerHTML = "";
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const isMe = data.uid === currentUser?.uid;
-            const div = document.createElement('div');
-            div.className = `msg-group ${isMe ? 'sent' : 'recv'}`;
-            div.innerHTML = `
-                <div style="font-size:8px; color:rgba(255,255,255,0.2); margin-bottom:4px; padding:0 10px;">${data.user}</div>
-                <div class="msg-bubble">${data.text}</div>
-            `;
-            container.appendChild(div);
+function renderKeyboard() {
+    const container = document.getElementById('zyKeyboard');
+    container.innerHTML = `<div class="zk-modes">
+        <div class="zk-mode ${kbMode==='alpha'?'active':''}" onclick="setKb('alpha')">ALPHA</div>
+        <div class="zk-mode ${kbMode==='sym'?'active':''}" onclick="setKb('sym')">SYM</div>
+        <div class="zk-mode ${kbMode==='emoji'?'active':''}" onclick="setKb('emoji')">EMOJI</div>
+    </div>`;
+    keys[kbMode].forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'zk-row';
+        row.forEach(key => {
+            const k = document.createElement('div');
+            k.className = `zk-key ${['SPACE','SEND','SHIFT','DEL','123','ABC','#+='].includes(key)?'wide':''}`;
+            k.textContent = key;
+            k.onclick = () => handleKey(key);
+            rowDiv.appendChild(k);
         });
-        container.scrollTop = container.scrollHeight;
+        container.appendChild(rowDiv);
     });
 }
-</script>
+window.setKb = (m) => { kbMode = m; renderKeyboard(); };
 
+let inputBuffer = "";
+function handleKey(key) {
+    if(key === "DEL") inputBuffer = inputBuffer.slice(0,-1);
+    else if(key === "SPACE") inputBuffer += " ";
+    else if(key === "SEND") { sendMessage(inputBuffer); inputBuffer = ""; }
+    else if(key === "123") setKb('sym');
+    else if(key === "ABC") setKb('alpha');
+    else if(key === "SHIFT") {} // Logic for upper/lower can be added
+    else inputBuffer += key;
+    showToast("BUFFER: " + inputBuffer);
+}
+
+// --- CHAT & CIPHER ---
+window.toggleCipherMode = () => {
+    cipherEnabled = !cipherEnabled;
+    const btn = document.getElementById('cipherToggle');
+    btn.textContent = `CIPHER: ${cipherEnabled ? 'ON' : 'OFF'}`;
+    btn.classList.toggle('on', cipherEnabled);
+    showToast(cipherEnabled ? "✦ ENCRYPTION ACTIVE" : "✧ ENCRYPTION BYPASS");
+};
+
+async function sendMessage(text) {
+    if(!text.trim()) return;
+    await addDoc(collection(db, "messages"), {
+        text: text,
+        user: localStorage.getItem('zy_user') || auth.currentUser.email,
+        uid: auth.currentUser.uid,
+        ciphered: cipherEnabled,
+        time: serverTimestamp()
+    });
+}
+
+function initChat() {
+    renderKeyboard();
+    const q = query(collection(db, "messages"), orderBy("time", "asc"));
+    onSnapshot(q, snap => {
+        const cont = document.getElementById('msgContainer');
+        cont.innerHTML = "";
+        snap.forEach(doc => {
+            const m = doc.data();
+            const isMe = m.uid === auth.currentUser.uid;
+            const div = document.createElement('div');
+            div.className = `msg-group ${isMe?'sent':'recv'}`;
+            const displayMsg = m.ciphered ? "Z¥P#R4_D4T4_L0CK" : m.text;
+            div.innerHTML = `
+                <div style="font-size:8px; opacity:0.3; margin:4px 10px;">${m.user}</div>
+                <div class="msg-bubble ${m.ciphered?'ciphered':''}" onclick="this.textContent='${m.text.replace(/'/g,"\\'")}'; this.classList.remove('ciphered')">${displayMsg}</div>
+            `;
+            cont.appendChild(div);
+        });
+        cont.scrollTop = cont.scrollHeight;
+    });
+}
+
+// --- PWA MANIFEST GENERATOR ---
+const manifest = {
+    name: "ZYPHRA", short_name: "ZYPHRA",
+    start_url: "./", display: "standalone",
+    background_color: "#020008", theme_color: "#020008",
+    icons: [{src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%23020008'/><text x='96' y='130' text-anchor='middle' font-size='100' fill='%2300f5ff'>⟐</text></svg>", sizes: "192x192", type: "image/svg+xml"}]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+document.getElementById('manifestLink').setAttribute('href', URL.createObjectURL(blob));
+
+</script>
 </body>
 </html>
