@@ -6,39 +6,28 @@
 <meta name="theme-color" content="#020008">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ZYPHRA">
-<title>ZYPHRA — Encrypted Cipher Chat</title>
+<title>ZYPHRA — Cipher Chat</title>
 <link id="manifestLink" rel="manifest">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
-  --void: #020008; --deep: #08001a; --mid: #12002e; --cyan: #00f5ff;
-  --violet: #b400ff; --pink: #ff00aa; --green: #00ff88;
-  --soft-cyan: rgba(0,245,255,0.12); --soft-violet: rgba(180,0,255,0.12);
-  --glow-c: 0 0 8px #00f5ff, 0 0 25px rgba(0,245,255,0.35);
-  --glow-v: 0 0 8px #b400ff, 0 0 25px rgba(180,0,255,0.35);
-  --glass: rgba(255,255,255,0.03); --gb: rgba(255,255,255,0.06);
+  --void: #020008; --deep: #08001a; --cyan: #00f5ff; --violet: #b400ff;
+  --pink: #ff00aa; --green: #00ff88; --soft-cyan: rgba(0,245,255,0.12);
+  --soft-violet: rgba(180,0,255,0.12); --glow-c: 0 0 8px #00f5ff,0 0 25px rgba(0,245,255,0.35);
+  --glow-v: 0 0 8px #b400ff,0 0 25px rgba(180,0,255,0.35); --glass: rgba(255,255,255,0.03);
+  --gb: rgba(255,255,255,0.06);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
 input,textarea,select{-webkit-user-select:text!important;user-select:text!important;}
 html,body{height:100%;overflow:hidden;background:#000;}
-body {
-  font-family:'Share Tech Mono',monospace; color:#fff;
-  display:flex; justify-content:center; align-items:center;
-  background:radial-gradient(ellipse 100% 100% at 50% 50%, #0a0018 0%, #020008 100%);
-}
-.bg {position:fixed;inset:0;z-index:0;pointer-events:none;}
-.bg-grad {position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 85%, rgba(180,0,255,0.1) 0%, transparent 55%),radial-gradient(ellipse 50% 70% at 85% 15%, rgba(0,245,255,0.07) 0%, transparent 55%);}
-.grid {position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.02) 1px,transparent 1px);background-size:50px 50px;}
-.scan {position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.25),transparent);animation:scan 8s linear infinite;}
+body{font-family:'Share Tech Mono',monospace;color:#fff;display:flex;justify-content:center;align-items:center;background:radial-gradient(ellipse 100% 100% at 50% 50%, #0a0018 0%, #020008 100%);}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.bg-grad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 85%, rgba(180,0,255,0.1) 0%, transparent 55%),radial-gradient(ellipse 50% 70% at 85% 15%, rgba(0,245,255,0.07) 0%, transparent 55%);}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.02) 1px,transparent 1px);background-size:50px 50px;}
+.scan{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.25),transparent);animation:scan 8s linear infinite;}
 @keyframes scan{from{top:-2px}to{top:100vh}}
-.app {
-  position:relative;z-index:10; width:min(390px,100vw); height:min(844px,100vh);
-  background:linear-gradient(165deg,rgba(18,0,40,0.97) 0%,rgba(4,0,12,0.99) 100%);
-  border-radius:min(48px,4vw); border:1px solid rgba(180,0,255,0.25);
-  box-shadow:0 0 0 1px rgba(0,245,255,0.08),0 0 60px rgba(180,0,255,0.15),0 0 120px rgba(0,245,255,0.06),inset 0 0 40px rgba(180,0,255,0.04);
-  overflow:hidden; display:flex; flex-direction:column;
-}
-.notch {position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:32px;background:#000;border-radius:0 0 20px 20px;z-index:200;display:flex;align-items:center;justify-content:center;gap:8px;}
+.app{position:relative;z-index:10;width:min(390px,100vw);height:min(844px,100vh);background:linear-gradient(165deg,rgba(18,0,40,0.97) 0%,rgba(4,0,12,0.99) 100%);border-radius:min(48px,4vw);border:1px solid rgba(180,0,255,0.25);box-shadow:0 0 0 1px rgba(0,245,255,0.08),0 0 60px rgba(180,0,255,0.15),0 0 120px rgba(0,245,255,0.06),inset 0 0 40px rgba(180,0,255,0.04);overflow:hidden;display:flex;flex-direction:column;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:32px;background:#000;border-radius:0 0 20px 20px;z-index:200;display:flex;align-items:center;justify-content:center;gap:8px;}
 .n-dot{width:8px;height:8px;border-radius:50%;background:#111;}
 .n-cam{background:rgba(0,245,255,0.35);box-shadow:0 0 6px var(--cyan);}
 .status{padding:8px 22px 0;display:flex;align-items:center;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;}
@@ -148,7 +137,7 @@ body {
     <div class="auth-wrap">
       <div class="auth-logo">ZYPHRA</div>
       <div class="auth-tagline">// ENCRYPTED · PRIVATE · CIPHER</div>
-      <div class="auth-tabs"><div class="auth-tab active" id="loginTab" onclick="switchTab('login')">LOGIN</div><div class="auth-tab" id="registerTab" onclick="switchTab('register')">REGISTER</div></div>
+      <div class="auth-tabs"><div class="auth-tab active" onclick="switchTab('login')">LOGIN</div><div class="auth-tab" onclick="switchTab('register')">REGISTER</div></div>
       <div class="auth-form" id="loginForm"><input class="auth-input" id="loginEmail" type="email" placeholder="email"><input class="auth-input" id="loginPass" type="password" placeholder="password"><div class="auth-error" id="loginErr"></div><button class="auth-btn" onclick="doLogin()">⟡ ENTER ZYPHRA</button></div>
       <div class="auth-form" id="registerForm" style="display:none;"><input class="auth-input" id="regName" type="text" placeholder="display name"><input class="auth-input" id="regEmail" type="email" placeholder="email"><input class="auth-input" id="regPass" type="password" placeholder="password (min 6)"><div class="auth-error" id="regErr"></div><button class="auth-btn" onclick="doRegister()">⚡ CREATE ACCOUNT</button></div>
       <div class="install-banner hidden" id="installBanner" onclick="installApp()"><span>📲</span><span>INSTALL ZYPHRA</span></div>
@@ -157,7 +146,7 @@ body {
   <div class="screen" id="homeScreen">
     <div class="status"><span id="homeTime">--:--</span><div class="sigs"><div class="sig"></div><div class="sig"></div><div class="sig"></div><div class="sig"></div></div></div>
     <div class="home-header"><div class="app-title">ZYPHRA ✦</div><div class="header-actions"><div class="user-badge" id="userBadge">user</div><div class="icon-btn" onclick="goTo('settingsScreen')">⚙️</div><div class="icon-btn" onclick="doLogout()">⏻</div></div></div>
-    <div class="tab-bar"><div class="tab-btn active" id="tabChatsBtn" onclick="setHomeTab('chats')">⟐ CHATS</div><div class="tab-btn" id="tabUsersBtn" onclick="setHomeTab('users')">👥 USERS</div></div>
+    <div class="tab-bar"><div class="tab-btn active" onclick="setHomeTab('chats')">⟐ CHATS</div><div class="tab-btn" onclick="setHomeTab('users')">👥 USERS</div></div>
     <div class="search-wrap"><input class="search-input" id="homeSearch" placeholder="⟐ search..." oninput="filterHomeList()"></div>
     <div class="chat-list" id="homeList"></div>
     <div class="new-btn" onclick="showNewChatModal()">⊕ NEW CIPHER CHAT</div>
@@ -201,7 +190,7 @@ window.doLogout = async function(){ if(unsubMessages) unsubMessages(); if(unsubC
 onAuthStateChanged(auth, async (user) => { if(user){ let userData={ name:user.displayName||user.email.split('@')[0] }; try{ const snap=await getDoc(doc(db,'users',user.uid)); if(snap.exists()) userData=snap.data(); await updateDoc(doc(db,'users',user.uid),{ online:true, lastSeen:serverTimestamp() }); }catch(e){} currentUser={ uid:user.uid, email:user.email, name:userData.name, avatar:userData.avatar||'⟐' }; document.getElementById('userBadge').textContent=currentUser.name; document.getElementById('settingsUser').textContent=user.email; window.goTo('homeScreen'); showToast(`⟐ WELCOME, ${currentUser.name.toUpperCase()}`); loadChats(); } else { window.goTo('authScreen'); } });
 function loadChats(){ if(!currentUser) return; if(unsubChats) unsubChats(); const q=query(collection(db,'chats'), where('participants','array-contains',currentUser.uid), orderBy('lastTime','desc')); unsubChats=onSnapshot(q, async (snap)=>{ const chats=[]; for(const docSnap of snap.docs){ const data=docSnap.data(); const otherId=data.participants.find(id=>id!==currentUser.uid); let otherUser=null; if(otherId){ const userSnap=await getDoc(doc(db,'users',otherId)); if(userSnap.exists()) otherUser=userSnap.data(); } chats.push({ id:docSnap.id, ...data, otherUser }); } if(currentHomeTab==='chats') renderHomeList(chats, document.getElementById('homeSearch').value); }); }
 function startUsersRealtime(){ if(unsubUsers) unsubUsers(); const q=query(collection(db,'users')); unsubUsers=onSnapshot(q, (snap)=>{ allUsersCache=snap.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.id!==currentUser?.uid); if(currentHomeTab==='users') renderHomeList(allUsersCache, document.getElementById('homeSearch').value); }); }
-window.setHomeTab = function(tab){ currentHomeTab=tab; document.getElementById('tabChatsBtn').classList.toggle('active',tab==='chats'); document.getElementById('tabUsersBtn').classList.toggle('active',tab==='users'); if(tab==='users') startUsersRealtime(); else loadChats(); window.filterHomeList(); };
+window.setHomeTab = function(tab){ currentHomeTab=tab; document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.remove('active')); if(tab==='chats') document.querySelector('.tab-btn:first-child').classList.add('active'); else document.querySelector('.tab-btn:last-child').classList.add('active'); if(tab==='users') startUsersRealtime(); else loadChats(); filterHomeList(); };
 window.filterHomeList = function(){ const val=document.getElementById('homeSearch').value.toLowerCase(); if(currentHomeTab==='chats') loadChats(); else if(allUsersCache.length) renderHomeList(allUsersCache, val); };
 function renderHomeList(items, filter){ const container=document.getElementById('homeList'); container.innerHTML=''; let filtered=items.filter(i=>{ if(currentHomeTab==='chats'){ const other=i.otherUser; return other?.name?.toLowerCase().includes(filter)||other?.email?.toLowerCase().includes(filter); } else { return i.name.toLowerCase().includes(filter)||i.email.toLowerCase().includes(filter); } }); if(filtered.length===0){ container.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.2);padding:30px;">// NOTHING FOUND</div>'; return; } filtered.forEach(item=>{ if(currentHomeTab==='chats'){ const chat=item, other=chat.otherUser; if(!other) return; const el=document.createElement('div'); el.className='chat-item'; el.innerHTML=`<div class="avatar">${other.avatar||'⟐'}${other.online?'<div class="av-online"></div>':''}</div><div class="ci-info"><div class="ci-name">${other.name}<span class="ci-real">${other.email.split('@')[0]}</span></div><div class="ci-prev">${chat.lastMsg||'no messages'}</div></div><div class="ci-meta"><span class="ci-time">${chat.lastTime?new Date(chat.lastTime).getHours()+':'+String(new Date(chat.lastTime).getMinutes()).padStart(2,'0'):''}</span>${chat.unread?'<div class="unread-dot"></div>':'<div class="read-dot"></div>'}</div>`; el.onclick=()=>openChatById(chat.id, other); container.appendChild(el); } else { const user=item; const el=document.createElement('div'); el.className='chat-item'; el.innerHTML=`<div class="avatar">${user.avatar||'⟐'}${user.online?'<div class="av-online"></div>':''}</div><div class="ci-info"><div class="ci-name">${user.name}<span class="ci-real">${user.email.split('@')[0]}</span></div><div class="ci-prev">${user.online?'● ONLINE':'○ OFFLINE'}</div></div>`; el.onclick=()=>startChatWithUser(user.id, user); container.appendChild(el); } }); }
 async function startChatWithUser(otherId, otherUser){ if(!currentUser) return; const chatId=[currentUser.uid,otherId].sort().join('_'); const chatRef=doc(db,'chats',chatId); const snap=await getDoc(chatRef); if(!snap.exists()){ await setDoc(chatRef,{ participants:[currentUser.uid,otherId], lastMsg:'✨ new cipher chat', lastTime:Date.now(), createdAt:serverTimestamp() }); } openChatById(chatId, otherUser); hideModal('newChatModal'); }
