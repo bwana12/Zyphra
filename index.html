@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#020008">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ZYPHRA">
+<meta name="description" content="Encrypted Zyphari messaging app">
+<title>ZYPHRA</title>
+
+<!-- PWA Manifest inline via blob -->
+<link id="manifestLink" rel="manifest">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --void: #020008;
+  --deep: #08001a;
+  --mid: #12002e;
+  --cyan: #00f5ff;
+  --violet: #b400ff;
+  --pink: #ff00aa;
+  --green: #00ff88;
+  --soft-cyan: rgba(0,245,255,0.12);
+  --soft-violet: rgba(180,0,255,0.12);
+  --glow-c: 0 0 8px #00f5ff, 0 0 25px rgba(0,245,255,0.35);
+  --glow-v: 0 0 8px #b400ff, 0 0 25px rgba(180,0,255,0.35);
+  --glow-p: 0 0 8px #ff00aa, 0 0 25px rgba(255,0,170,0.35);
+  --glass: rgba(255,255,255,0.03);
+  --gb: rgba(255,255,255,0.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+html,body{height:100%;overflow:hidden;background:#000;}
+
+body {
+  font-family:'Share Tech Mono',monospace;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(ellipse 100% 100% at 50% 50%, #0a0018 0%, #020008 100%);
+}
+
+/* BG */
+.bg {position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-grad {
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 85%, rgba(180,0,255,0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 70% at 85% 15%, rgba(0,245,255,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 30% at 50% 50%, rgba(180,0,255,0.04) 0%, transparent 60%);
+}
+.grid {
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,255,0.02) 1px,transparent 1px);
+  background-size:50px 50px;
+}
+.scan {
+  position:absolute;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,245,255,0.25),transparent);
+  animation:scan 8s linear infinite;
+}
+@keyframes scan{from{top:-2px}to{top:100vh}}
+
+/* PHONE SHELL */
+.app {
+  position:relative;z-index:10;
+  width:min(390px,100vw);
+  height:min(844px,100vh);
+  background:linear-gradient(165deg,rgba(18,0,40,0.97) 0%,rgba(4,0,12,0.99) 100%);
+  border-radius:min(48px,4vw);
+  border:1px solid rgba(180,0,255,0.25);
+  box-shadow:
+    0 0 0 1px rgba(0,245,255,0.08),
+    0 0 60px rgba(180,0,255,0.15),
+    0 0 120px rgba(0,245,255,0.06),
+    inset 0 0 40px rgba(180,0,255,0.04);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* NOTCH */
+.notch {
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:130px;height:32px;
+  background:#000;border-radius:0 0 20px 20px;
+  z-index:200;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.n-dot{width:8px;height:8px;border-radius:50%;background:#111;}
+.n-cam{background:rgba(0,245,255,0.35);box-shadow:0 0 6px var(--cyan);}
+
+/* STATUS */
+.status{
+  padding:8px 22px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:1px;
+  flex-shrink:0;
+}
+.sigs{display:flex;gap:2px;align-items:flex-end;}
+.sig{width:3px;border-radius:1px;background:rgba(0,245,255,0.45);}
+.sig:nth-child(1){height:4px}
+.sig:nth-child(2){height:7px}
+.sig:nth-child(3){height:10px}
+.sig:nth-child(4){height:13px}
+
+/* SCREENS */
+.screen{display:none;flex-direction:column;flex:1;overflow:hidden;animation:fadeUp .3s ease;}
+.screen.active{display:flex;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   LOGIN / REGISTER SCREEN
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.auth-wrap{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px 28px 40px;gap:0;
+}
+.auth-logo {
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:36px;
+  letter-spacing:8px;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 12px rgba(0,245,255,0.6));
+  margin-bottom:4px;
+}
+.auth-tagline{font-size:10px;letter-spacing:4px;color:rgba(255,255,255,0.25);margin-bottom:40px;text-align:center;}
+
+.auth-tabs{display:flex;gap:0;margin-bottom:28px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);overflow:hidden;}
+.auth-tab{
+  flex:1;padding:10px;text-align:center;font-size:11px;letter-spacing:3px;
+  cursor:pointer;transition:all .25s;color:rgba(255,255,255,0.3);
+  font-family:'Share Tech Mono',monospace;
+}
+.auth-tab.active{background:linear-gradient(135deg,rgba(0,245,255,0.12),rgba(180,0,255,0.12));color:var(--cyan);border-bottom:1px solid var(--cyan);}
+
+.auth-form{width:100%;display:flex;flex-direction:column;gap:14px;}
+.field-wrap{position:relative;}
+.field-label{font-size:9px;letter-spacing:3px;color:rgba(0,245,255,0.5);margin-bottom:6px;display:block;}
+.auth-input{
+  width:100%;padding:14px 16px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:1px;
+  outline:none;transition:all .25s;
+  -webkit-user-select:text;user-select:text;
+}
+.auth-input:focus{border-color:rgba(0,245,255,0.4);background:rgba(0,245,255,0.04);box-shadow:0 0 20px rgba(0,245,255,0.08);}
+.auth-input::placeholder{color:rgba(255,255,255,0.18);font-size:12px;}
+
+.auth-btn{
+  margin-top:8px;padding:16px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(0,245,255,0.15),rgba(180,0,255,0.2));
+  border:1px solid rgba(0,245,255,0.35);
+  color:var(--cyan);font-size:12px;letter-spacing:4px;
+  font-family:'Share Tech Mono',monospace;cursor:pointer;
+  transition:all .25s;
+}
+.auth-btn:hover{background:linear-gradient(135deg,rgba(0,245,255,0.25),rgba(180,0,255,0.3));box-shadow:var(--glow-c);}
+.auth-btn:active{transform:scale(0.98);}
+
+.auth-error{
+  font-size:11px;letter-spacing:1px;color:var(--pink);
+  text-align:center;min-height:16px;
+}
+
+.install-banner {
+  margin-top:16px;padding:10px 16px;
+  background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);
+  border-radius:12px;display:flex;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:1px;color:rgba(0,255,136,0.7);
+  cursor:pointer;transition:all .2s;
+}
+.install-banner:hover{background:rgba(0,255,136,0.12);box-shadow:0 0 15px rgba(0,255,136,0.15);}
+.install-banner.hidden{display:none;}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   HOME SCREEN
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.home-header{
+  padding:42px 20px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.app-title{
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;letter-spacing:5px;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 8px rgba(0,245,255,0.5));
+}
+.header-actions{display:flex;gap:8px;align-items:center;}
+.user-badge{
+  padding:5px 12px;border-radius:20px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  font-size:10px;letter-spacing:1px;color:rgba(255,255,255,0.4);
+  max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.icon-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--gb);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;transition:all .2s;
+}
+.icon-btn:hover{border-color:rgba(0,245,255,0.4);box-shadow:var(--glow-c);}
+
+.sec-label{
+  padding:0 20px 10px;
+  font-size:9px;letter-spacing:3px;color:rgba(0,245,255,0.45);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(0,245,255,0.25),transparent);}
+
+.search-wrap{padding:0 16px 10px;flex-shrink:0;}
+.search-input{
+  width:100%;padding:10px 16px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:14px;color:rgba(255,255,255,0.7);
+  font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;
+  outline:none;transition:all .2s;
+  -webkit-user-select:text;user-select:text;
+}
+.search-input:focus{border-color:rgba(0,245,255,0.25);}
+.search-input::placeholder{color:rgba(255,255,255,0.18);font-size:11px;}
+
+.chat-list{flex:1;overflow-y:auto;padding:0 12px;}
+.chat-list::-webkit-scrollbar{display:none;}
+
+.chat-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:18px;margin-bottom:7px;
+  background:var(--glass);border:1px solid var(--gb);
+  cursor:pointer;transition:all .25s;position:relative;overflow:hidden;
+}
+.chat-item::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,245,255,0.05) 0%,transparent 60%);
+  opacity:0;transition:opacity .3s;
+}
+.chat-item:hover{border-color:rgba(0,245,255,0.2);transform:translateX(3px);}
+.chat-item:hover::before{opacity:1;}
+.chat-item.has-unread{border-color:rgba(180,0,255,0.25);}
+
+.avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--soft-violet),var(--soft-cyan));
+  border:1px solid rgba(180,0,255,0.35);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+  box-shadow:0 0 10px rgba(180,0,255,0.2);
+  position:relative;
+}
+.av-online{
+  position:absolute;bottom:1px;right:1px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--cyan);border:2px solid var(--deep);
+  box-shadow:0 0 5px var(--cyan);
+}
+
+.ci-info{flex:1;min-width:0;}
+.ci-name{
+  font-size:14px;letter-spacing:1px;color:rgba(255,255,255,0.88);
+  margin-bottom:3px;display:flex;align-items:center;gap:6px;
+}
+.ci-real{font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:2px;}
+.ci-prev{font-size:11px;color:rgba(255,255,255,0.28);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+.ci-meta{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+.ci-time{font-size:9px;color:rgba(255,255,255,0.22);letter-spacing:1px;}
+.unread-dot{width:8px;height:8px;border-radius:50%;background:var(--violet);box-shadow:var(--glow-v);}
+.read-dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(255,255,255,0.18);}
+
+.new-btn{
+  margin:8px 12px 20px;
+  padding:15px;border-radius:18px;
+  background:linear-gradient(135deg,rgba(0,245,255,0.07),rgba(180,0,255,0.07));
+  border:1px dashed rgba(0,245,255,0.25);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  cursor:pointer;color:rgba(0,245,255,0.6);font-size:12px;letter-spacing:2px;
+  font-family:'Share Tech Mono',monospace;transition:all .25s;flex-shrink:0;
+}
+.new-btn:hover{background:linear-gradient(135deg,rgba(0,245,255,0.14),rgba(180,0,255,0.14));border-color:rgba(0,245,255,0.5);color:var(--cyan);box-shadow:var(--glow-c);}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CHAT SCREEN
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.chat-header{
+  padding:42px 18px 14px;
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(180deg,rgba(8,0,20,0.95) 0%,transparent 100%);
+  border-bottom:1px solid var(--gb);flex-shrink:0;
+  backdrop-filter:blur(20px);
+}
+.back-btn{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--gb);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--cyan);font-size:14px;transition:all .2s;flex-shrink:0;
+}
+.back-btn:hover{box-shadow:var(--glow-c);}
+.ch-info{flex:1;}
+.ch-name{font-size:15px;letter-spacing:2px;color:#fff;margin-bottom:2px;}
+.ch-status{font-size:9px;letter-spacing:2px;color:var(--cyan);display:flex;align-items:center;gap:5px;}
+.pulse{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 5px var(--cyan);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+
+.cipher-btn{
+  padding:5px 10px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(180,0,255,0.15),rgba(0,245,255,0.08));
+  border:1px solid rgba(180,0,255,0.3);
+  color:var(--violet);font-size:10px;letter-spacing:1px;
+  cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;
+}
+.cipher-btn.on{
+  background:linear-gradient(135deg,rgba(180,0,255,0.35),rgba(0,245,255,0.15));
+  border-color:var(--violet);color:#fff;box-shadow:var(--glow-v);
+  animation:cpulse 2s ease-in-out infinite;
+}
+@keyframes cpulse{0%,100%{box-shadow:var(--glow-v)}50%{box-shadow:0 0 4px var(--violet)}}
+
+/* MESSAGES */
+.messages-wrap{
+  flex:1;overflow-y:auto;padding:12px 14px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.messages-wrap::-webkit-scrollbar{display:none;}
+
+.msg-day-label{
+  text-align:center;font-size:9px;letter-spacing:3px;
+  color:rgba(255,255,255,0.2);margin:6px 0;
+}
+
+.msg-group{display:flex;flex-direction:column;gap:3px;}
+.msg-group.sent{align-items:flex-end;}
+.msg-group.recv{align-items:flex-start;}
+
+.msg-bubble{
+  max-width:76%;padding:11px 15px;
+  border-radius:18px;position:relative;
+  font-size:16px;letter-spacing:2px;line-height:1.7;
+  animation:bubIn .3s cubic-bezier(.34,1.56,.64,1);
+  cursor:pointer;transition:transform .15s;
+  word-break:break-all;
+}
+.msg-bubble:active{transform:scale(.97);}
+@keyframes bubIn{from{opacity:0;transform:scale(.82) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.msg-group.sent .msg-bubble{
+  background:linear-gradient(135deg,rgba(0,245,255,0.1),rgba(180,0,255,0.07));
+  border:1px solid rgba(0,245,255,0.2);
+  border-bottom-right-radius:5px;
+}
+.msg-group.recv .msg-bubble{
+  background:linear-gradient(135deg,rgba(180,0,255,0.09),rgba(0,245,255,0.04));
+  border:1px solid rgba(180,0,255,0.18);
+  border-bottom-left-radius:5px;
+}
+.msg-bubble.ciphered{
+  border-color:rgba(255,0,170,0.35);
+  animation:bubIn .3s cubic-bezier(.34,1.56,.64,1),cglow 3s ease-in-out infinite;
+}
+@keyframes cglow{0%,100%{box-shadow:0 4px 18px rgba(255,0,170,.18)}50%{box-shadow:0 4px 35px rgba(255,0,170,.45)}}
+
+.msg-meta{font-size:9px;letter-spacing:1px;color:rgba(255,255,255,.22);padding:0 4px;}
+
+/* typing indicator */
+.typing-indicator{
+  display:none;align-items:center;gap:4px;
+  padding:10px 15px;border-radius:18px;border-bottom-left-radius:5px;
+  background:linear-gradient(135deg,rgba(180,0,255,.09),rgba(0,245,255,.04));
+  border:1px solid rgba(180,0,255,.18);width:fit-content;
+}
+.typing-indicator.show{display:flex;}
+.t-dot{width:6px;height:6px;border-radius:50%;background:var(--violet);animation:tdot 1.4s ease-in-out infinite;}
+.t-dot:nth-child(2){animation-delay:.2s}
+.t-dot:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* CTX MENU */
+.ctx{
+  position:absolute;z-index:300;
+  background:rgba(8,0,20,.97);backdrop-filter:blur(24px);
+  border:1px solid rgba(0,245,255,.2);border-radius:16px;
+  padding:7px;min-width:150px;
+  box-shadow:0 10px 40px rgba(0,0,0,.8),var(--glow-c);
+  display:none;
+  animation:ctxIn .18s cubic-bezier(.34,1.56,.64,1);
+}
+.ctx.show{display:block;}
+@keyframes ctxIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.ctx-item{
+  padding:9px 13px;border-radius:10px;display:flex;align-items:center;gap:9px;
+  font-size:11px;letter-spacing:1px;cursor:pointer;transition:background .15s;
+  color:rgba(255,255,255,.75);
+}
+.ctx-item:hover{background:rgba(0,245,255,.1);color:var(--cyan);}
+.ctx-item.del:hover{background:rgba(255,0,100,.1);color:#ff6464;}
+
+/* INPUT AREA */
+.input-area{
+  padding:10px 12px 24px;flex-shrink:0;
+  background:linear-gradient(0deg,rgba(8,0,20,.97) 0%,transparent 100%);
+  backdrop-filter:blur(20px);
+}
+.input-row{
+  display:flex;align-items:flex-end;gap:8px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:22px;padding:8px 8px 8px 14px;
+  transition:border-color .2s;
+}
+.input-row:focus-within{border-color:rgba(0,245,255,.3);box-shadow:0 0 18px rgba(0,245,255,.08);}
+
+#msgInput{
+  flex:1;background:none;border:none;outline:none;
+  color:rgba(255,255,255,.85);font-family:'Share Tech Mono',monospace;
+  font-size:15px;letter-spacing:1px;caret-color:var(--cyan);
+  resize:none;max-height:80px;overflow-y:auto;line-height:1.5;
+  -webkit-user-select:text;user-select:text;
+}
+#msgInput::placeholder{color:rgba(255,255,255,.2);font-size:12px;}
+#msgInput::-webkit-scrollbar{display:none;}
+
+.mic-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--gb);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;transition:all .2s;flex-shrink:0;
+}
+.mic-btn:hover{border-color:rgba(0,245,255,.4);}
+.mic-btn.rec{border-color:var(--pink);box-shadow:var(--glow-p);animation:rpulse 1s ease-in-out infinite;}
+@keyframes rpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+.send-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--violet));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all .2s;flex-shrink:0;
+  box-shadow:0 0 12px rgba(0,245,255,.35);
+}
+.send-btn:hover{transform:scale(1.1);box-shadow:0 0 22px rgba(0,245,255,.6);}
+.send-btn:active{transform:scale(.93);}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ZYPHARI KEYBOARD
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.zk{
+  flex-shrink:0;
+  background:linear-gradient(180deg,rgba(5,0,18,.98) 0%,rgba(2,0,8,1) 100%);
+  border-top:1px solid rgba(0,245,255,.12);
+  padding:10px 10px 16px;
+}
+.zk-modes{
+  display:flex;gap:0;margin-bottom:10px;
+  background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.06);overflow:hidden;
+}
+.zk-mode{
+  flex:1;padding:7px 4px;text-align:center;font-size:9px;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;color:rgba(255,255,255,.28);
+  font-family:'Share Tech Mono',monospace;
+}
+.zk-mode.active{background:rgba(0,245,255,.08);color:var(--cyan);border-bottom:1px solid var(--cyan);}
+
+.zk-rows{}
+.zk-row{display:flex;justify-content:center;gap:5px;margin-bottom:6px;}
+.zk-key{
+  min-width:30px;height:38px;border-radius:9px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;transition:all .1s;
+  color:rgba(255,255,255,.8);padding:0 4px;
+  flex:1;max-width:40px;
+}
+.zk-key:hover{background:rgba(0,245,255,.07);border-color:rgba(0,245,255,.2);}
+.zk-key:active{background:rgba(0,245,255,.2);transform:scale(.88);box-shadow:0 0 10px rgba(0,245,255,.4);color:var(--cyan);}
+.zk-key.wide{max-width:none;flex:2;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.3);}
+.zk-key.send-k{background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(180,0,255,.15));border-color:rgba(0,245,255,.25);color:var(--cyan);}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   NEW CHAT MODAL
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.modal-overlay{
+  position:absolute;inset:0;z-index:400;
+  background:rgba(2,0,8,.85);backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;
+  animation:fadeUp .2s ease;
+}
+.modal-overlay.show{display:flex;}
+.modal-box{
+  background:rgba(10,0,28,.97);border:1px solid rgba(0,245,255,.25);
+  border-radius:24px;padding:24px;width:calc(100% - 40px);max-width:340px;
+  box-shadow:var(--glow-c);
+}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:4px;color:var(--cyan);margin-bottom:20px;text-align:center;}
+.modal-input{
+  width:100%;padding:13px 15px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:13px;color:#fff;font-family:'Share Tech Mono',monospace;
+  font-size:13px;letter-spacing:1px;outline:none;margin-bottom:12px;
+  -webkit-user-select:text;user-select:text;
+}
+.modal-input:focus{border-color:rgba(0,245,255,.35);}
+.modal-input::placeholder{color:rgba(255,255,255,.18);font-size:11px;}
+.modal-actions{display:flex;gap:8px;}
+.modal-btn{
+  flex:1;padding:12px;border-radius:13px;font-size:11px;letter-spacing:2px;
+  cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;text-align:center;
+}
+.modal-btn.ok{background:linear-gradient(135deg,rgba(0,245,255,.18),rgba(180,0,255,.18));border:1px solid rgba(0,245,255,.35);color:var(--cyan);}
+.modal-btn.cancel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.4);}
+
+/* DECODE OVERLAY */
+.decode-ov{
+  position:absolute;inset:0;z-index:350;
+  background:rgba(2,0,8,.88);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;
+}
+.decode-ov.show{display:flex;animation:fadeUp .2s ease;}
+.decode-box{
+  background:rgba(10,0,24,.97);border:1px solid rgba(0,245,255,.28);
+  border-radius:22px;padding:24px;width:calc(100% - 48px);max-width:300px;
+  box-shadow:var(--glow-c);
+}
+.decode-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;color:var(--cyan);margin-bottom:14px;text-align:center;}
+.decode-text{font-size:13px;letter-spacing:.5px;color:rgba(255,255,255,.8);line-height:1.7;text-align:center;margin-bottom:18px;}
+.decode-acts{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+.d-btn{
+  padding:8px 14px;border-radius:11px;font-size:10px;letter-spacing:2px;
+  cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;
+}
+.d-btn.ok{background:rgba(0,245,255,.12);border:1px solid rgba(0,245,255,.3);color:var(--cyan);}
+.d-btn.del{background:rgba(255,0,100,.08);border:1px solid rgba(255,0,100,.25);color:#ff7070;}
+
+/* SETTINGS */
+.settings-scroll{flex:1;overflow-y:auto;padding:12px 14px;}
+.settings-scroll::-webkit-scrollbar{display:none;}
+.s-section{margin-bottom:22px;}
+.s-sec-title{font-size:9px;letter-spacing:3px;color:rgba(0,245,255,.4);text-transform:uppercase;margin-bottom:9px;padding-left:4px;}
+.s-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 15px;border-radius:15px;
+  background:var(--glass);border:1px solid var(--gb);
+  margin-bottom:6px;cursor:pointer;transition:all .2s;
+}
+.s-row:hover{border-color:rgba(0,245,255,.18);}
+.s-row.danger:hover{border-color:rgba(255,0,100,.3);background:rgba(255,0,100,.04);}
+.s-label{font-size:12px;letter-spacing:1px;display:flex;align-items:center;gap:9px;}
+.s-icon{font-size:15px;}
+.toggle{
+  width:42px;height:22px;border-radius:11px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);
+  position:relative;transition:all .3s;flex-shrink:0;
+}
+.toggle.on{background:linear-gradient(90deg,var(--cyan),var(--violet));border-color:var(--cyan);box-shadow:0 0 9px rgba(0,245,255,.35);}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:16px;height:16px;border-radius:50%;
+  background:#fff;transition:all .3s;
+}
+.toggle.on::after{left:22px;}
+
+/* TOAST */
+.toast{
+  position:absolute;top:75px;left:50%;transform:translateX(-50%);
+  background:rgba(0,245,255,.12);border:1px solid rgba(0,245,255,.35);
+  padding:7px 18px;border-radius:18px;font-size:10px;letter-spacing:2px;
+  color:var(--cyan);backdrop-filter:blur(20px);
+  opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;
+  z-index:500;box-shadow:var(--glow-c);
+}
+.toast.show{opacity:1;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-thumb{background:rgba(0,245,255,.18);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="bg-grad"></div>
+  <div class="grid"></div>
+  <div class="scan"></div>
+</div>
+
+<div class="app" id="app">
+  <div class="notch">
+    <div class="n-dot"></div>
+    <div class="n-dot n-cam"></div>
+    <div class="n-dot"></div>
+  </div>
+
+  <!-- â•â• AUTH SCREEN â•â• -->
+  <div class="screen active" id="authScreen">
+    <div style="padding:40px 0 0;flex-shrink:0;">
+      <div class="status">
+        <span id="authTime">23:47</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="sigs"><div class="sig"></div><div class="sig"></div><div class="sig"></div><div class="sig"></div></div>
+          <span>â–²</span>
+        </div>
+      </div>
+    </div>
+    <div class="auth-wrap">
+      <div class="auth-logo">ZYPHRA</div>
+      <div class="auth-tagline">// ENCRYPTED Â· PRIVATE Â· CIPHER</div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="loginTab" onclick="switchTab('login')">LOGIN</div>
+        <div class="auth-tab" id="registerTab" onclick="switchTab('register')">REGISTER</div>
+      </div>
+
+      <div class="auth-form" id="loginForm">
+        <div class="field-wrap">
+          <label class="field-label">// EMAIL ADDRESS</label>
+          <input class="auth-input" id="loginEmail" type="email" placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">// PASSWORD</label>
+          <input class="auth-input" id="loginPass" type="password" placeholder="enter password" autocomplete="current-password">
+        </div>
+        <div class="auth-error" id="loginErr"></div>
+        <div class="auth-btn" onclick="doLogin()">âŸ¡ ENTER ZYPHRA</div>
+      </div>
+
+      <div class="auth-form" id="registerForm" style="display:none;">
+        <div class="field-wrap">
+          <label class="field-label">// DISPLAY NAME (ZYPHARI)</label>
+          <input class="auth-input" id="regName" type="text" placeholder="e.g. âŸâŒ‡Ê˜ or Faith" autocomplete="off">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">// EMAIL ADDRESS</label>
+          <input class="auth-input" id="regEmail" type="email" placeholder="your@email.com" autocomplete="email">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">// PASSWORD (MIN 6 CHARS)</label>
+          <input class="auth-input" id="regPass" type="password" placeholder="create password" autocomplete="new-password">
+        </div>
+        <div class="auth-error" id="regErr"></div>
+        <div class="auth-btn" onclick="doRegister()">âš¡ CREATE ACCOUNT</div>
+      </div>
+
+      <div class="install-banner hidden" id="installBanner" onclick="installApp()">
+        <span>ðŸ“²</span>
+        <span>INSTALL ZYPHRA APP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- â•â• HOME SCREEN â•â• -->
+  <div class="screen" id="homeScreen">
+    <div class="status">
+      <span id="homeTime">23:47</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="sigs"><div class="sig"></div><div class="sig"></div><div class="sig"></div><div class="sig"></div></div>
+        <span>ðŸ”’</span>
+      </div>
+    </div>
+    <div class="home-header">
+      <div class="app-title">ZYPHRA âœ¦</div>
+      <div class="header-actions">
+        <div class="user-badge" id="userBadge">user</div>
+        <div class="icon-btn" onclick="goTo('settingsScreen')" title="Settings">âš™ï¸</div>
+        <div class="icon-btn" onclick="doLogout()" title="Logout">â»</div>
+      </div>
+    </div>
+    <div class="sec-label">ðŸ”’ ENCRYPTED CHATS</div>
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" placeholder="âŸ search chats..." oninput="filterChats()" autocomplete="off">
+    </div>
+    <div class="chat-list" id="chatList"></div>
+    <div class="new-btn" onclick="showNewChatModal()">âŠ• NEW CIPHER CHAT</div>
+  </div>
+
+  <!-- â•â• CHAT SCREEN â•â• -->
+  <div class="screen" id="chatScreen">
+    <div class="status">
+      <span id="chatTime">23:47</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="sigs"><div class="sig"></div><div class="sig"></div><div class="sig"></div><div class="sig"></div></div>
+        <span>ðŸ”</span>
+      </div>
+    </div>
+    <div class="chat-header">
+      <div class="back-btn" onclick="goTo('homeScreen');hideKeyboard();">â†</div>
+      <div class="avatar" id="chatAvatar" style="width:38px;height:38px;font-size:13px;margin-right:2px;">âŸ</div>
+      <div class="ch-info">
+        <div class="ch-name" id="chatName">âŸâŒ‡Ê˜</div>
+        <div class="ch-status"><span class="pulse"></span><span id="chatStatus">LINK ACTIVE</span></div>
+      </div>
+      <div class="cipher-btn" id="cipherBtn" onclick="toggleCipher()">ðŸ” OFF</div>
+    </div>
+
+    <div class="messages-wrap" id="messagesWrap">
+      <div class="msg-day-label">TODAY</div>
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-row">
+        <textarea id="msgInput" rows="1" placeholder="Type Zyphari..."></textarea>
+        <div class="mic-btn" id="micBtn" onclick="toggleMic()">ðŸŽ¤</div>
+        <div class="send-btn" onclick="sendMessage()">âš¡</div>
+      </div>
+    </div>
+
+    <div class="zk" id="zk">
+      <div class="zk-modes">
+        <div class="zk-mode active" onclick="setZkMode('sym',this)">ZYPHARI</div>
+        <div class="zk-mode" onclick="setZkMode('cip',this)">CIPHER</div>
+        <div class="zk-mode" onclick="setZkMode('num',this)">NUM</div>
+        <div class="zk-mode" onclick="setZkMode('en',this)">EN</div>
+      </div>
+      <div class="zk-rows" id="zkRows"></div>
+      <div class="zk-row" style="gap:5px;">
+        <div class="zk-key" onclick="zkInput('~')" style="max-width:34px">~</div>
+        <div class="zk-key" onclick="zkInput("'")" style="max-width:34px">'</div>
+        <div class="zk-key wide" onclick="zkInput(' ')">Â· SPACE Â·</div>
+        <div class="zk-key" onclick="zkInput('_')" style="max-width:34px">_</div>
+        <div class="zk-key" onclick="zkBackspace()" style="max-width:38px;font-size:13px;">âŒ«</div>
+        <div class="zk-key send-k" onclick="sendMessage()" style="max-width:38px;">âŸ¡</div>
+      </div>
+    </div>
+
+    <!-- Context menu -->
+    <div class="ctx" id="ctx">
+      <div class="ctx-item" onclick="ctxDecode()">ðŸ” DECODE</div>
+      <div class="ctx-item" onclick="ctxCopy()">ðŸ“‹ COPY</div>
+      <div class="ctx-item del" onclick="ctxDelete()">âŒ DELETE</div>
+    </div>
+  </div>
+
+  <!-- â•â• SETTINGS SCREEN â•â• -->
+  <div class="screen" id="settingsScreen">
+    <div class="status">
+      <span id="setTime">23:47</span>
+      <div style="display:flex;gap:8px;align-items:center;"><div class="sigs"><div class="sig"></div><div class="sig"></div><div class="sig"></div><div class="sig"></div></div></div>
+    </div>
+    <div class="chat-header" style="padding-top:36px;">
+      <div class="back-btn" onclick="goTo('homeScreen')">â†</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:13px;letter-spacing:4px;color:rgba(255,255,255,.9);">SETTINGS</div>
+    </div>
+    <div class="settings-scroll">
+      <div class="s-section">
+        <div class="s-sec-title">// SECURITY</div>
+        <div class="s-row" onclick="toggleRow(this)">
+          <div class="s-label"><span class="s-icon">ðŸ”</span> Default Cipher</div>
+          <div class="toggle on"></div>
+        </div>
+        <div class="s-row" onclick="toggleRow(this)">
+          <div class="s-label"><span class="s-icon">ðŸ’¥</span> Self-Destruct</div>
+          <div class="toggle"></div>
+        </div>
+        <div class="s-row" onclick="toggleRow(this)">
+          <div class="s-label"><span class="s-icon">ðŸ§¬</span> Identity Masking</div>
+          <div class="toggle on"></div>
+        </div>
+      </div>
+      <div class="s-section">
+        <div class="s-sec-title">// DISPLAY</div>
+        <div class="s-row" onclick="toggleRow(this)">
+          <div class="s-label"><span class="s-icon">ðŸ”¤</span> Show English</div>
+          <div class="toggle"></div>
+        </div>
+        <div class="s-row" onclick="toggleRow(this)">
+          <div class="s-label"><span class="s-icon">ðŸ§ </span> Auto Decode</div>
+          <div class="toggle"></div>
+        </div>
+        <div class="s-row" onclick="toggleRow(this)">
+          <div class="s-label"><span class="s-icon">ðŸŽ¨</span> Neon Void Theme</div>
+          <div class="toggle on"></div>
+        </div>
+      </div>
+      <div class="s-section">
+        <div class="s-sec-title">// ACCOUNT</div>
+        <div class="s-row" id="accountRow">
+          <div class="s-label"><span class="s-icon">ðŸ‘¤</span> <span id="settingsUser">user@zyphra</span></div>
+        </div>
+        <div class="s-row" onclick="showToast('âŸ KEYS EXPORTED')">
+          <div class="s-label"><span class="s-icon">ðŸ”‘</span> Export Cipher Keys</div>
+          <div style="color:var(--cyan);font-size:12px;">â€º</div>
+        </div>
+        <div class="s-row" onclick="doLogout()">
+          <div class="s-label"><span class="s-icon">â»</span> Sign Out</div>
+          <div style="color:rgba(255,255,255,.3);font-size:12px;">â€º</div>
+        </div>
+      </div>
+      <div class="s-section">
+        <div class="s-sec-title">// DANGER</div>
+        <div class="s-row danger" onclick="nukeChats()">
+          <div class="s-label"><span class="s-icon">â˜ ï¸</span> Wipe All Messages</div>
+          <div style="color:rgba(255,80,80,.5);font-size:12px;">â€º</div>
+        </div>
+      </div>
+      <div class="install-banner hidden" id="installBanner2" onclick="installApp()">
+        <span>ðŸ“²</span><span>INSTALL ZYPHRA APP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Chat Modal -->
+  <div class="modal-overlay" id="newChatModal">
+    <div class="modal-box">
+      <div class="modal-title">âŸ NEW CIPHER CHAT</div>
+      <input class="modal-input" id="ncEmail" type="email" placeholder="contact email...">
+      <input class="modal-input" id="ncName" type="text" placeholder="display name (optional)">
+      <div class="auth-error" id="ncErr" style="margin-bottom:10px;font-size:10px;"></div>
+      <div class="modal-actions">
+        <div class="modal-btn cancel" onclick="hideModal('newChatModal')">CANCEL</div>
+        <div class="modal-btn ok" onclick="createNewChat()">âš¡ OPEN</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decode Overlay -->
+  <div class="decode-ov" id="decodeOv" onclick="if(event.target===this)hideDecodeOv()">
+    <div class="decode-box">
+      <div class="decode-title">âœ¦ MESSAGE DECODE âœ¦</div>
+      <div class="decode-text" id="decodeText">â€”</div>
+      <div class="decode-acts">
+        <div class="d-btn ok" onclick="hideDecodeOv()">âœ“ CLOSE</div>
+        <div class="d-btn del" onclick="ctxDelete();hideDecodeOv()">âŒ DELETE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ZYPHARI SYSTEM
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+const ZM = {
+  a:'âŸ',b:'ÏŸ',c:'âŒ‡',d:'âŠ¡',e:'Ê˜',f:'â…ƒ',g:'â‰‹',h:'Ç',
+  i:'â€¢',j:'â¤“',k:'Ï˜',l:'â”',m:'â©š',n:'âŒ’',o:'â—',p:'â¨€',
+  q:'â‰',r:'Êƒ',s:'âŠ‚',t:'â”¼',u:'âˆª',v:'â©”',w:'Ñ ',x:'âœ•',
+  y:'ÏŸâŒ’',z:'Ê˜âŠ¡',' ':'Â·'
+};
+const ZM_R = Object.fromEntries(Object.entries(ZM).map(([k,v])=>[v,k]));
+
+function toZ(txt){
+  return txt.toLowerCase().split('').map(c=>ZM[c]||c).join(' ');
+}
+function fromZ(txt){
+  return txt.split(' ').map(s=>ZM_R[s]||s).join('');
+}
+function applyCipher(sym){
+  return sym.split(' ').map((s,i)=>i%2===0?':'+s:s).join(' ');
+}
+function isCipheredMsg(sym){return sym.includes(':');}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STATE / STORAGE
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+const DB = {
+  getUsers(){return JSON.parse(localStorage.getItem('zy_users')||'{}');},
+  setUsers(u){localStorage.setItem('zy_users',JSON.stringify(u));},
+  getChats(uid){return JSON.parse(localStorage.getItem(`zy_chats_${uid}`)||'[]');},
+  setChats(uid,c){localStorage.setItem(`zy_chats_${uid}`,JSON.stringify(c));},
+  getMsgs(uid,cid){return JSON.parse(localStorage.getItem(`zy_msgs_${uid}_${cid}`)||'[]');},
+  setMsgs(uid,cid,m){localStorage.setItem(`zy_msgs_${uid}_${cid}`,JSON.stringify(m));},
+  getSession(){return localStorage.getItem('zy_session');},
+  setSession(e){localStorage.setItem('zy_session',e);},
+  clearSession(){localStorage.removeItem('zy_session');}
+};
+
+let currentUser = null; // {email, name}
+let currentChatId = null;
+let cipherOn = false;
+let micActive = false;
+let zkMode = 'sym';
+let ctxTarget = null; // bubble element being right-clicked
+let deferredInstall = null;
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   KEYBOARD LAYOUTS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+const KB = {
+  sym:[
+    ['âŸ','ÏŸ','âŒ‡','âŠ¡','Ê˜','â…ƒ','â‰‹','Ç','â€¢'],
+    ['â¤“','Ï˜','â”','â©š','âŒ’','â—','â¨€','â‰','Êƒ'],
+    ['âŠ‚','â”¼','âˆª','â©”','Ñ ','âœ•','Â·','âŸ¡']
+  ],
+  cip:[
+    [':âŸ',':ÏŸ',':âŒ‡',':âŠ¡',':Ê˜',':â…ƒ',':â‰‹',':Ç',':â€¢'],
+    [':â¤“',':Ï˜',':â”',':â©š',':âŒ’',':â—',':â¨€',':â‰',':Êƒ'],
+    [':âŠ‚',':â”¼',':âˆª',':â©”',':Ñ ',':âœ•','~',"'",'_']
+  ],
+  num:[
+    ['â—Œ','â€¢','âŒ‡','ÏŸ','âŸ','âŠ¡','Ê˜','â‰‹','Ç'],
+    ['â¤“','âœ•','â©”','+','âˆ’','Ã—','Ã·','=','%'],
+    ['â€¢â—Œ','âŒ‡â—Œ','ÏŸâ—Œ','âŸâ—Œ','âŠ¡â—Œ','Ê˜â—Œ','â‰‹â—Œ','Çâ—Œ']
+  ],
+  en:[
+    ['q','w','e','r','t','y','u','i','o'],
+    ['a','s','d','f','g','h','j','k','l'],
+    ['p','z','x','c','v','b','n','m','.']
+  ]
+};
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CLOCK
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function tick(){
+  const t = new Date();
+  const s = `${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+  ['authTime','homeTime','chatTime','setTime'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = s;
+  });
+}
+setInterval(tick,10000); tick();
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SCREEN NAV
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='homeScreen') renderChatList();
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   AUTH
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function switchTab(tab){
+  document.getElementById('loginTab').classList.toggle('active', tab==='login');
+  document.getElementById('registerTab').classList.toggle('active', tab==='register');
+  document.getElementById('loginForm').style.display = tab==='login'?'flex':'none';
+  document.getElementById('registerForm').style.display = tab==='register'?'flex':'none';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('regErr').textContent='';
+}
+
+/* Simple deterministic hash - works reliably across all browsers */
+function hashPass(str){
+  let h=5381;
+  for(let i=0;i<str.length;i++) h=((h<<5)+h)^str.charCodeAt(i);
+  return (h>>>0).toString(36);
+}
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginErr');
+  if(!email||!pass){err.textContent='// FILL ALL FIELDS';return;}
+  const users = DB.getUsers();
+  if(!users[email]){err.textContent='// ACCOUNT NOT FOUND';return;}
+  if(users[email].pass !== hashPass(pass)){err.textContent='// INVALID PASSWORD';return;}
+  loginSuccess(email, users[email].name);
+}
+
+function doRegister(){
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('regPass').value;
+  const err = document.getElementById('regErr');
+  if(!name||!email||!pass){err.textContent='// FILL ALL FIELDS';return;}
+  if(pass.length<6){err.textContent='// PASSWORD TOO SHORT';return;}
+  if(!/\S+@\S+\.\S+/.test(email)){err.textContent='// INVALID EMAIL';return;}
+  const users = DB.getUsers();
+  if(users[email]){err.textContent='// EMAIL ALREADY REGISTERED';return;}
+  users[email] = {name, pass:hashPass(pass)};
+  DB.setUsers(users);
+  // Seed demo chats
+  const seedChats=[
+    {id:'demo_faith',name:'âŸâŒ‡Ê˜',realName:'Faith',avatar:'âŸâŒ‡Ê˜',online:true,lastMsg:'â¤“ âŠ‚ â”â—â©” â€¢ âŒ‡',lastTime:Date.now()-600000,unread:2},
+    {id:'demo_squad',name:'â©šâ—â©”',realName:'Squad',avatar:'â©šâ—â©”',online:true,lastMsg:'âŸ â©” â‰‹ â€¢ âŒ’',lastTime:Date.now()-1800000,unread:1},
+    {id:'demo_x',name:'ÇâŠ‚â”',realName:'Unknown',avatar:'ÇâŠ‚â”',online:false,lastMsg:':Ê˜ â©š âŠ¡ :âŒ‡',lastTime:Date.now()-7200000,unread:0}
+  ];
+  DB.setChats(email,seedChats);
+  // Seed messages for faith
+  const seed=[
+    {id:1,from:'them',txt:'Ç Ê˜ â” â” â—',raw:'hello',time:Date.now()-600000,ciphered:false},
+    {id:2,from:'me',txt:'â— â” â” Ê˜ Ç',raw:'hello',time:Date.now()-590000,ciphered:false},
+    {id:3,from:'them',txt:'â¤“ âŠ‚ â”â—â©” â€¢ âŒ‡',raw:'how are you',time:Date.now()-580000,ciphered:false},
+    {id:4,from:'me',txt:':Ê˜ :â©š :âŠ¡ :â€¢',raw:'CIPHERED',time:Date.now()-570000,ciphered:true},
+    {id:5,from:'them',txt:'â€¢ â©š âŠ‚â”¼â—âŒ’',raw:'i understand',time:Date.now()-560000,ciphered:false},
+  ];
+  DB.setMsgs(email,'demo_faith',seed);
+  loginSuccess(email, name);
+}
+
+function loginSuccess(email, name){
+  currentUser = {email, name};
+  DB.setSession(email);
+  document.getElementById('userBadge').textContent = name;
+  document.getElementById('settingsUser').textContent = email;
+  showToast(`âŸ WELCOME, ${name.toUpperCase()}`);
+  goTo('homeScreen');
+}
+
+function doLogout(){
+  currentUser = null;
+  currentChatId = null;
+  DB.clearSession();
+  goTo('authScreen');
+  showToast('âŠ‚ SESSION TERMINATED');
+}
+
+// Auto-login from session
+(function(){
+  const s = DB.getSession();
+  if(s){
+    const users = DB.getUsers();
+    if(users[s]) loginSuccess(s, users[s].name);
+  }
+})();
+
+// Enter key support on auth inputs
+document.addEventListener('DOMContentLoaded', function(){});
+document.getElementById('loginEmail').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('loginPass').focus();});
+document.getElementById('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+document.getElementById('regName').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('regEmail').focus();});
+document.getElementById('regEmail').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('regPass').focus();});
+document.getElementById('regPass').addEventListener('keydown',function(e){if(e.key==='Enter')doRegister();});
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CHAT LIST
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function renderChatList(filter=''){
+  if(!currentUser) return;
+  const chats = DB.getChats(currentUser.email);
+  const list = document.getElementById('chatList');
+  list.innerHTML='';
+  const filtered = filter ? chats.filter(c=>
+    c.name.toLowerCase().includes(filter.toLowerCase())||
+    c.realName.toLowerCase().includes(filter.toLowerCase())
+  ) : chats;
+  if(filtered.length===0){
+    list.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.2);font-size:11px;letter-spacing:2px;padding:30px;">// NO CHATS FOUND</div>';
+    return;
+  }
+  filtered.forEach(chat=>{
+    const el = document.createElement('div');
+    el.className='chat-item'+(chat.unread?' has-unread':'');
+    el.onclick=()=>openChat(chat.id);
+    const t = new Date(chat.lastTime);
+    const tStr = `${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+    el.innerHTML=`
+      <div class="avatar">${chat.avatar}${chat.online?'<div class="av-online"></div>':''}</div>
+      <div class="ci-info">
+        <div class="ci-name">${chat.name} <span class="ci-real">${chat.realName.toLowerCase()}</span></div>
+        <div class="ci-prev">${chat.lastMsg||'â€”'}</div>
+      </div>
+      <div class="ci-meta">
+        <span class="ci-time">${tStr}</span>
+        <div class="${chat.unread?'unread-dot':'read-dot'}"></div>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function filterChats(){
+  renderChatList(document.getElementById('searchInput').value);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   OPEN CHAT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function openChat(chatId){
+  if(!currentUser) return;
+  currentChatId = chatId;
+  cipherOn = false;
+  document.getElementById('cipherBtn').textContent='ðŸ” OFF';
+  document.getElementById('cipherBtn').classList.remove('on');
+
+  const chats = DB.getChats(currentUser.email);
+  const chat = chats.find(c=>c.id===chatId);
+  if(!chat) return;
+
+  // Mark as read
+  chat.unread=0;
+  DB.setChats(currentUser.email, chats);
+
+  document.getElementById('chatAvatar').textContent = chat.avatar;
+  document.getElementById('chatName').textContent = chat.name;
+  document.getElementById('chatStatus').textContent = chat.online?'LINK ACTIVE':'OFFLINE';
+
+  renderMessages();
+  goTo('chatScreen');
+  renderKeyboard();
+  document.getElementById('msgInput').focus();
+  scrollToBottom();
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   MESSAGES
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function renderMessages(){
+  if(!currentUser||!currentChatId) return;
+  const msgs = DB.getMsgs(currentUser.email, currentChatId);
+  const wrap = document.getElementById('messagesWrap');
+  // Keep typing indicator
+  const ti = document.getElementById('typingIndicator');
+  wrap.innerHTML='';
+  wrap.appendChild(ti);
+
+  const dayLabel = document.createElement('div');
+  dayLabel.className='msg-day-label'; dayLabel.textContent='TODAY';
+  wrap.insertBefore(dayLabel, ti);
+
+  msgs.forEach(msg=>{
+    const group = document.createElement('div');
+    group.className=`msg-group ${msg.from==='me'?'sent':'recv'}`;
+    const bubble = document.createElement('div');
+    bubble.className='msg-bubble'+(msg.ciphered?' ciphered':'');
+    bubble.textContent = msg.txt;
+    bubble.dataset.id = msg.id;
+    bubble.dataset.raw = msg.raw;
+    bubble.dataset.ciphered = msg.ciphered;
+    bubble.addEventListener('click', ()=>showDecode(bubble));
+    bubble.addEventListener('contextmenu', e=>{e.preventDefault();showCtx(e,bubble);});
+    const meta = document.createElement('div');
+    meta.className='msg-meta';
+    const t=new Date(msg.time);
+    meta.textContent=`${msg.from==='me'?'YOU':document.getElementById('chatName').textContent} Â· ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}${msg.ciphered?' Â· ðŸ”':''}`;
+    group.appendChild(bubble); group.appendChild(meta);
+    wrap.insertBefore(group, ti);
+  });
+  scrollToBottom();
+}
+
+function scrollToBottom(){
+  setTimeout(()=>{
+    const w=document.getElementById('messagesWrap');
+    w.scrollTop=w.scrollHeight;
+  },50);
+}
+
+function sendMessage(){
+  const input = document.getElementById('msgInput');
+  const raw = input.value.trim();
+  if(!raw||!currentUser||!currentChatId) return;
+  input.value=''; input.style.height='';
+
+  let display = toZ(raw);
+  if(cipherOn) display = applyCipher(display);
+
+  const msgs = DB.getMsgs(currentUser.email, currentChatId);
+  const newMsg = {
+    id: Date.now(),
+    from:'me',
+    txt: display,
+    raw: raw,
+    time: Date.now(),
+    ciphered: cipherOn
+  };
+  msgs.push(newMsg);
+  DB.setMsgs(currentUser.email, currentChatId, msgs);
+
+  // Update chat preview
+  const chats = DB.getChats(currentUser.email);
+  const chat = chats.find(c=>c.id===currentChatId);
+  if(chat){chat.lastMsg=display;chat.lastTime=Date.now();DB.setChats(currentUser.email,chats);}
+
+  renderMessages();
+
+  // Simulate reply
+  if(Math.random()>0.2){
+    showTyping();
+    setTimeout(()=>{
+      hideTyping();
+      const replies=[
+        {t:'âŸ â©” â‰‹ â€¢ âŒ’',r:'yes i get you'},
+        {t:'â€¢ â”â—â©” Ê˜ â€¢',r:'i love it'},
+        {t:'â¤“ âŠ‚ â”â—â©”',r:'how are you'},
+        {t:'â©š Ê˜ âŸ âŒ’ â€¢',r:'message received'},
+        {t:'âŸâŒ‡ âŠ‚â”¼â—âŒ’',r:'understood'},
+        {t:'â— Ï˜ âŸ âŒ‡',r:'okay'},
+        {t:'ÏŸ Ê˜ âŸ âˆª â”¼ â€¢â…ƒ âˆª â”',r:'beautiful'},
+      ];
+      const rep=replies[Math.floor(Math.random()*replies.length)];
+      const rMsg={id:Date.now()+1,from:'them',txt:rep.t,raw:rep.r,time:Date.now(),ciphered:false};
+      const m2=DB.getMsgs(currentUser.email,currentChatId);
+      m2.push(rMsg);
+      DB.setMsgs(currentUser.email,currentChatId,m2);
+      if(chat){chat.lastMsg=rep.t;chat.lastTime=Date.now();chat.unread=0;DB.setChats(currentUser.email,chats);}
+      renderMessages();
+    },1200+Math.random()*1000);
+  }
+}
+
+function showTyping(){document.getElementById('typingIndicator').classList.add('show');scrollToBottom();}
+function hideTyping(){document.getElementById('typingIndicator').classList.remove('show');}
+
+/* CONTEXT MENU */
+function showCtx(e,bubble){
+  ctxTarget=bubble;
+  const ctx=document.getElementById('ctx');
+  ctx.classList.add('show');
+  const rect=document.getElementById('app').getBoundingClientRect();
+  let x=e.clientX-rect.left, y=e.clientY-rect.top;
+  if(x+160>rect.width) x=rect.width-165;
+  if(y+120>rect.height) y=rect.height-125;
+  ctx.style.left=x+'px'; ctx.style.top=y+'px';
+}
+document.addEventListener('click',()=>document.getElementById('ctx').classList.remove('show'));
+
+function ctxDecode(){if(ctxTarget) showDecode(ctxTarget); document.getElementById('ctx').classList.remove('show');}
+function ctxCopy(){if(ctxTarget){navigator.clipboard&&navigator.clipboard.writeText(ctxTarget.textContent);showToast('ðŸ“‹ COPIED');} document.getElementById('ctx').classList.remove('show');}
+function ctxDelete(){
+  if(!ctxTarget||!currentUser||!currentChatId) return;
+  const id=parseInt(ctxTarget.dataset.id);
+  let msgs=DB.getMsgs(currentUser.email,currentChatId);
+  msgs=msgs.filter(m=>m.id!==id);
+  DB.setMsgs(currentUser.email,currentChatId,msgs);
+  renderMessages();
+  showToast('âŒ MESSAGE DELETED');
+  document.getElementById('ctx').classList.remove('show');
+}
+
+function showDecode(bubble){
+  const raw = bubble.dataset.raw;
+  const ciphered = bubble.dataset.ciphered==='true';
+  const sym = bubble.textContent;
+  let text = ciphered ? `ðŸ” CIPHERED\n\nDECODED: "${raw}"\n\nSYMBOLS: ${sym}` : `SYMBOLS: ${sym}\n\nREADS: "${raw}"`;
+  document.getElementById('decodeText').textContent = text;
+  document.getElementById('decodeOv').classList.add('show');
+  ctxTarget = bubble;
+}
+function hideDecodeOv(){document.getElementById('decodeOv').classList.remove('show');}
+
+/* CIPHER TOGGLE */
+function toggleCipher(){
+  cipherOn=!cipherOn;
+  const btn=document.getElementById('cipherBtn');
+  btn.textContent=cipherOn?'ðŸ” ON':'ðŸ” OFF';
+  btn.classList.toggle('on',cipherOn);
+  showToast(cipherOn?'âš¡ CIPHER ACTIVE':'â—Œ CIPHER OFF');
+}
+
+/* MIC */
+function toggleMic(){
+  micActive=!micActive;
+  const btn=document.getElementById('micBtn');
+  btn.classList.toggle('rec',micActive);
+  btn.textContent=micActive?'ðŸ”´':'ðŸŽ¤';
+  if(micActive){
+    showToast('ðŸŽ¤ VOICE â†’ ZYPHARI');
+    if('webkitSpeechRecognition' in window||'SpeechRecognition' in window){
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      const recog=new SR();
+      recog.lang='en-US'; recog.interimResults=false;
+      recog.onresult=e=>{
+        const t=e.results[0][0].transcript;
+        document.getElementById('msgInput').value+=toZ(t)+' ';
+        micActive=false; btn.classList.remove('rec'); btn.textContent='ðŸŽ¤';
+      };
+      recog.onerror=()=>{micActive=false;btn.classList.remove('rec');btn.textContent='ðŸŽ¤';};
+      recog.start();
+    } else {
+      setTimeout(()=>{
+        document.getElementById('msgInput').value+=' âŠ‚ â¨€ Ê˜ Êƒ Ê˜ âŒ’ âŠ¡';
+        micActive=false;btn.classList.remove('rec');btn.textContent='ðŸŽ¤';
+        showToast('âŠ‚ CONVERTED');
+      },2000);
+    }
+  }
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   ZYPHARI KEYBOARD
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function renderKeyboard(){
+  const rows = KB[zkMode]||KB.sym;
+  const container = document.getElementById('zkRows');
+  container.innerHTML='';
+  rows.forEach(row=>{
+    const r=document.createElement('div');
+    r.className='zk-row';
+    row.forEach(sym=>{
+      const k=document.createElement('div');
+      k.className='zk-key';
+      k.textContent=sym;
+      k.onclick=()=>zkInput(sym);
+      r.appendChild(k);
+    });
+    container.appendChild(r);
+  });
+}
+
+function setZkMode(mode,el){
+  zkMode=mode;
+  document.querySelectorAll('.zk-mode').forEach(m=>m.classList.remove('active'));
+  el.classList.add('active');
+  renderKeyboard();
+}
+
+function zkInput(sym){
+  const inp=document.getElementById('msgInput');
+  inp.value+=sym;
+  inp.focus();
+  autoResizeInput();
+}
+
+function zkBackspace(){
+  const inp=document.getElementById('msgInput');
+  // Remove last character
+  if(inp.value.length>0) inp.value=inp.value.slice(0,-1);
+  inp.focus();
+}
+
+function hideKeyboard(){document.getElementById('zk').style.display='';}
+
+function autoResizeInput(){
+  const t=document.getElementById('msgInput');
+  t.style.height='auto';
+  t.style.height=Math.min(t.scrollHeight,80)+'px';
+}
+
+document.getElementById('msgInput').addEventListener('input',autoResizeInput);
+document.getElementById('msgInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   NEW CHAT
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function showNewChatModal(){document.getElementById('newChatModal').classList.add('show');}
+function hideModal(id){document.getElementById(id).classList.remove('show');}
+
+function createNewChat(){
+  const email=document.getElementById('ncEmail').value.trim().toLowerCase();
+  const name=document.getElementById('ncName').value.trim();
+  const err=document.getElementById('ncErr');
+  if(!email){err.textContent='// ENTER EMAIL';return;}
+  if(!/\S+@\S+\.\S+/.test(email)){err.textContent='// INVALID EMAIL';return;}
+  if(!currentUser){return;}
+
+  const chats=DB.getChats(currentUser.email);
+  if(chats.find(c=>c.id===`chat_${email.replace(/[@.]/g,'_')}`)){
+    err.textContent='// CHAT ALREADY EXISTS'; return;
+  }
+
+  const users=DB.getUsers();
+  const contactName=name||(users[email]?users[email].name:email.split('@')[0]);
+  const syms=['âŸâŒ‡','ÏŸâŠ¡','Ê˜âŒ’','â…ƒâ—','â‰‹â€¢','â¤“Êƒ','Ï˜â”','â©šâŒ’'];
+  const avatar=syms[Math.floor(Math.random()*syms.length)];
+  const chatId=`chat_${email.replace(/[@.]/g,'_')}`;
+
+  chats.unshift({
+    id:chatId,name:avatar,realName:contactName,
+    avatar,online:Math.random()>0.4,
+    lastMsg:'',lastTime:Date.now(),unread:0
+  });
+  DB.setChats(currentUser.email,chats);
+  hideModal('newChatModal');
+  document.getElementById('ncEmail').value='';
+  document.getElementById('ncName').value='';
+  err.textContent='';
+  renderChatList();
+  showToast('âš¡ CIPHER CHANNEL OPENED');
+  openChat(chatId);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   SETTINGS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+function toggleRow(row){
+  const t=row.querySelector('.toggle');
+  if(t) t.classList.toggle('on');
+}
+
+function nukeChats(){
+  if(!currentUser) return;
+  const chats=DB.getChats(currentUser.email);
+  chats.forEach(c=>DB.setMsgs(currentUser.email,c.id,[]));
+  showToast('â˜  ALL MESSAGES WIPED');
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   TOAST
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+let toastTimer;
+function showToast(msg){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   PWA / INSTALL
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstall=e;
+  document.getElementById('installBanner').classList.remove('hidden');
+  document.getElementById('installBanner2').classList.remove('hidden');
+});
+
+function installApp(){
+  if(deferredInstall){
+    deferredInstall.prompt();
+    deferredInstall.userChoice.then(r=>{
+      if(r.outcome==='accepted') showToast('âš¡ ZYPHRA INSTALLED');
+      deferredInstall=null;
+      document.getElementById('installBanner').classList.add('hidden');
+      document.getElementById('installBanner2').classList.add('hidden');
+    });
+  } else {
+    showToast('// USE BROWSER MENU â†’ ADD TO HOME SCREEN');
+  }
+}
+
+window.addEventListener('appinstalled',()=>showToast('âœ¦ ZYPHRA INSTALLED'));
+
+// Manifest blob
+const manifest = {
+  name:"ZYPHRA",short_name:"ZYPHRA",
+  description:"Encrypted Zyphari messaging",
+  start_url:"./",display:"standalone",
+  orientation:"portrait",
+  theme_color:"#020008",background_color:"#020008",
+  icons:[
+    {src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%23020008'/><text x='96' y='130' text-anchor='middle' font-size='100' fill='%2300f5ff'>âŸ</text></svg>",sizes:"192x192",type:"image/svg+xml"},
+    {src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23020008'/><text x='256' y='340' text-anchor='middle' font-size='280' fill='%2300f5ff'>âŸ</text></svg>",sizes:"512x512",type:"image/svg+xml"}
+  ]
+};
+const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.getElementById('manifestLink').href=URL.createObjectURL(blob);
+
+// Service Worker
+if('serviceWorker' in navigator){
+  const sw=`
+    const CACHE='zyphra-v1';
+    const FILES=['/'];
+    self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES))));
+    self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+  `;
+  const swBlob=new Blob([sw],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+}
+</script>
+</body>
+</html>
