@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -32,7 +32,8 @@
   --glass: rgba(255,255,255,0.03);
   --gb: rgba(255,255,255,0.06);
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation;}
+input,textarea,select{-webkit-user-select:text!important;user-select:text!important;}
 html,body{height:100%;overflow:hidden;background:#000;}
 
 body {
@@ -147,9 +148,11 @@ body {
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.08);
   border-radius:14px;
-  color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:1px;
+  color:#fff;font-family:'Share Tech Mono',monospace;font-size:16px;letter-spacing:1px;
   outline:none;transition:all .25s;
   -webkit-user-select:text;user-select:text;
+  -webkit-appearance:none;appearance:none;
+  touch-action:manipulation;
 }
 .auth-input:focus{border-color:rgba(0,245,255,0.4);background:rgba(0,245,255,0.04);box-shadow:0 0 20px rgba(0,245,255,0.08);}
 .auth-input::placeholder{color:rgba(255,255,255,0.18);font-size:12px;}
@@ -164,6 +167,7 @@ body {
 }
 .auth-btn:hover{background:linear-gradient(135deg,rgba(0,245,255,0.25),rgba(180,0,255,0.3));box-shadow:var(--glow-c);}
 .auth-btn:active{transform:scale(0.98);}
+button.auth-btn{width:100%;font-family:'Share Tech Mono',monospace;cursor:pointer;}
 
 .auth-error{
   font-size:11px;letter-spacing:1px;color:var(--pink);
@@ -626,13 +630,14 @@ body {
           <input class="auth-input" id="loginPass" type="password" placeholder="enter password" autocomplete="current-password">
         </div>
         <div class="auth-error" id="loginErr"></div>
-        <div class="auth-btn" onclick="doLogin()">âŸ¡ ENTER ZYPHRA</div>
+        <button class="auth-btn" onclick="doLogin()" type="button">âŸ¡ ENTER ZYPHRA</button>
+        <div style="text-align:center;margin-top:10px;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.2);cursor:pointer;" onclick="resetAccount()">// RESET ACCOUNT DATA</div>
       </div>
 
       <div class="auth-form" id="registerForm" style="display:none;">
         <div class="field-wrap">
           <label class="field-label">// DISPLAY NAME (ZYPHARI)</label>
-          <input class="auth-input" id="regName" type="text" placeholder="e.g. âŸâŒ‡Ê˜ or Faith" autocomplete="off">
+          <input class="auth-input" id="regName" type="text" placeholder="e.g. Faith or your name" autocomplete="off">
         </div>
         <div class="field-wrap">
           <label class="field-label">// EMAIL ADDRESS</label>
@@ -643,7 +648,7 @@ body {
           <input class="auth-input" id="regPass" type="password" placeholder="create password" autocomplete="new-password">
         </div>
         <div class="auth-error" id="regErr"></div>
-        <div class="auth-btn" onclick="doRegister()">âš¡ CREATE ACCOUNT</div>
+        <button class="auth-btn" onclick="doRegister()" type="button">âš¡ CREATE ACCOUNT</button>
       </div>
 
       <div class="install-banner hidden" id="installBanner" onclick="installApp()">
@@ -860,17 +865,51 @@ function isCipheredMsg(sym){return sym.includes(':');}
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STATE / STORAGE
+   Uses localStorage with full in-memory fallback.
+   Works even when opened as content:// on Android.
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+
+// In-memory store â€” always available regardless of protocol
+const MEM = {};
+
+// Detect if localStorage actually works (fails on content:// in some browsers)
+let LS_OK = false;
+try {
+  localStorage.setItem('__zy_test__','1');
+  LS_OK = localStorage.getItem('__zy_test__') === '1';
+  localStorage.removeItem('__zy_test__');
+} catch(e){ LS_OK = false; }
+
+// If localStorage works, load existing data into MEM on startup so it's always in sync
+if(LS_OK){
+  try {
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k&&k.startsWith('zy_')) MEM[k]=localStorage.getItem(k);
+    }
+  } catch(e){}
+}
+
+function lsGet(key){ return MEM[key]||null; }
+function lsSet(key,val){
+  MEM[key]=val;
+  if(LS_OK){ try{ localStorage.setItem(key,val); }catch(e){} }
+}
+function lsDel(key){
+  delete MEM[key];
+  if(LS_OK){ try{ localStorage.removeItem(key); }catch(e){} }
+}
+
 const DB = {
-  getUsers(){return JSON.parse(localStorage.getItem('zy_users')||'{}');},
-  setUsers(u){localStorage.setItem('zy_users',JSON.stringify(u));},
-  getChats(uid){return JSON.parse(localStorage.getItem(`zy_chats_${uid}`)||'[]');},
-  setChats(uid,c){localStorage.setItem(`zy_chats_${uid}`,JSON.stringify(c));},
-  getMsgs(uid,cid){return JSON.parse(localStorage.getItem(`zy_msgs_${uid}_${cid}`)||'[]');},
-  setMsgs(uid,cid,m){localStorage.setItem(`zy_msgs_${uid}_${cid}`,JSON.stringify(m));},
-  getSession(){return localStorage.getItem('zy_session');},
-  setSession(e){localStorage.setItem('zy_session',e);},
-  clearSession(){localStorage.removeItem('zy_session');}
+  getUsers(){ return JSON.parse(lsGet('zy_users')||'{}'); },
+  setUsers(u){ lsSet('zy_users', JSON.stringify(u)); },
+  getChats(uid){ return JSON.parse(lsGet(`zy_chats_${uid}`)||'[]'); },
+  setChats(uid,c){ lsSet(`zy_chats_${uid}`, JSON.stringify(c)); },
+  getMsgs(uid,cid){ return JSON.parse(lsGet(`zy_msgs_${uid}_${cid}`)||'[]'); },
+  setMsgs(uid,cid,m){ lsSet(`zy_msgs_${uid}_${cid}`, JSON.stringify(m)); },
+  getSession(){ return lsGet('zy_session'); },
+  setSession(e){ lsSet('zy_session', e); },
+  clearSession(){ lsDel('zy_session'); }
 };
 
 let currentUser = null; // {email, name}
@@ -954,8 +993,20 @@ function doLogin(){
   const err = document.getElementById('loginErr');
   if(!email||!pass){err.textContent='// FILL ALL FIELDS';return;}
   const users = DB.getUsers();
-  if(!users[email]){err.textContent='// ACCOUNT NOT FOUND';return;}
-  if(users[email].pass !== hashPass(pass)){err.textContent='// INVALID PASSWORD';return;}
+  if(!users[email]){err.textContent='// ACCOUNT NOT FOUND â€” PLEASE REGISTER';return;}
+  const stored = users[email].pass;
+  const newHash = hashPass(pass);
+  // Support old btoa() passwords and new hashPass() passwords
+  let oldHash = '';
+  try { oldHash = btoa(unescape(encodeURIComponent(pass))); } catch(e){ try{ oldHash = btoa(pass); }catch(e2){} }
+  if(stored !== newHash && stored !== oldHash){
+    err.textContent='// INVALID PASSWORD';return;
+  }
+  // Migrate old btoa password to new hash silently
+  if(stored !== newHash){
+    users[email].pass = newHash;
+    DB.setUsers(users);
+  }
   loginSuccess(email, users[email].name);
 }
 
@@ -997,6 +1048,16 @@ function loginSuccess(email, name){
   document.getElementById('settingsUser').textContent = email;
   showToast(`âŸ WELCOME, ${name.toUpperCase()}`);
   goTo('homeScreen');
+}
+
+function resetAccount(){
+  if(confirm('This will DELETE all accounts and chats stored in this browser. Continue?')){
+    try{ localStorage.clear(); }catch(e){}
+    Object.keys(MEM).forEach(k=>delete MEM[k]);
+    showToast('âŠ‚ ACCOUNT DATA CLEARED â€” PLEASE REGISTER');
+    document.getElementById('loginErr').textContent='// CLEARED â€” NOW REGISTER AGAIN';
+    switchTab('register');
+  }
 }
 
 function doLogout(){
